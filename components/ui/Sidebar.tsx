@@ -3,6 +3,7 @@
 import { useAppStore } from '@/hooks/useAppStore';
 import { ToggleSwitch } from '../shared/ToggleSwitch';
 import { useState } from 'react';
+import {infoContent} from '@/lib/info-content';
 
 // Data structure for sidebar items
 const categories = [
