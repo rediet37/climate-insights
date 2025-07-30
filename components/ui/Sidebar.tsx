@@ -3,7 +3,8 @@
 import { useAppStore } from '@/hooks/useAppStore';
 import { ToggleSwitch } from '../shared/ToggleSwitch';
 import { useState } from 'react';
-import {infoContent} from '@/lib/info-content';
+import { infoContent } from '@/lib/info-content';
+import { Modal } from '../shared/Modal';
 
 // Data structure for sidebar items
 const categories = [
@@ -44,6 +45,10 @@ const categories = [
 export function Sidebar() {
     const [openCategory, setOpenCategory] = useState<string | null>(''); 
     const { activeCategory, activeSubcategory, actions } = useAppStore();
+    const [modalInfo, setModalInfo] = useState<{ isOpen: boolean; contentKey: string }>({
+        isOpen: false,
+        contentKey: ''
+    });
 
     const handleToggle = (cat: 'rainfall' | 'temperature' | 'drought', sub: string) => {
         if (activeCategory === cat && activeSubcategory === sub) {
@@ -55,6 +60,21 @@ export function Sidebar() {
 
     const handleCategoryClick = (categoryId: string) => {
         setOpenCategory(openCategory === categoryId ? null : categoryId);
+    };
+
+    const handleInfoClick = (e: React.MouseEvent, categoryId: string, subcategoryId: string) => {
+        e.stopPropagation(); // Prevent the toggle from being triggered
+        const contentKey = `${categoryId}-${subcategoryId}`;
+        if (infoContent[contentKey]) {
+            setModalInfo({
+                isOpen: true,
+                contentKey
+            });
+        }
+    };
+
+    const closeModal = () => {
+        setModalInfo({ ...modalInfo, isOpen: false });
     };
 
     const selectedCategory = categories.find(cat => cat.id === openCategory);
@@ -97,8 +117,30 @@ export function Sidebar() {
                     <div className="space-y-3">
                         {selectedCategory.subcategories.map(sub => (
                             <div key={sub.id} className="flex items-center justify-between p-2 rounded hover:bg-white transition-colors">
-                                <label htmlFor={`${selectedCategory.id}-${sub.id}`} className="text-gray-700 cursor-pointer flex-1">
+                                <label htmlFor={`${selectedCategory.id}-${sub.id}`} className="text-gray-700 cursor-pointer flex-1 flex items-center">
                                     {sub.name}
+                                    {infoContent[`${selectedCategory.id}-${sub.id}`] && (
+                                        <button 
+                                            className="ml-2 text-gray-400 hover:text-green-500 focus:outline-none" 
+                                            onClick={(e) => handleInfoClick(e, selectedCategory.id, sub.id)}
+                                            aria-label={`Information about ${sub.name}`}
+                                        >
+                                            <svg 
+                                                xmlns="http://www.w3.org/2000/svg" 
+                                                className="h-4 w-4" 
+                                                fill="none" 
+                                                viewBox="0 0 24 24" 
+                                                stroke="currentColor"
+                                            >
+                                                <path 
+                                                    strokeLinecap="round" 
+                                                    strokeLinejoin="round" 
+                                                    strokeWidth={2} 
+                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                                                />
+                                            </svg>
+                                        </button>
+                                    )}
                                 </label>
                                 <ToggleSwitch
                                     id={`${selectedCategory.id}-${sub.id}`}
@@ -109,6 +151,17 @@ export function Sidebar() {
                         ))}
                     </div>
                 </div>
+            )}
+
+            {/* Info Modal */}
+            {modalInfo.isOpen && infoContent[modalInfo.contentKey] && (
+                <Modal 
+                    isOpen={modalInfo.isOpen} 
+                    onClose={closeModal}
+                    title={infoContent[modalInfo.contentKey].title}
+                >
+                    {infoContent[modalInfo.contentKey].content}
+                </Modal>
             )}
         </div>
     );
