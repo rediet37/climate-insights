@@ -5,12 +5,14 @@ import { ToggleSwitch } from '../shared/ToggleSwitch';
 import { useState } from 'react';
 import { infoContent } from '@/lib/info-content';
 import { Modal } from '../shared/Modal';
+import { WiRain, WiThermometer } from 'react-icons/wi';
+import { IoSunnyOutline } from "react-icons/io5";
 
-// Data structure for sidebar items
 const categories = [
     {
         id: 'rainfall',
         name: 'Rainfall',
+        icon: <WiRain size={28} />,
         subcategories: [
             { id: 'daily', name: 'Daily' },
             { id: 'monthly', name: 'Monthly' },
@@ -22,6 +24,7 @@ const categories = [
     {
         id: 'temperature',
         name: 'Temperature',
+        icon: <WiThermometer size={28} />,
         subcategories: [
             { id: 'daily', name: 'Daily' },
             { id: 'monthly', name: 'Monthly' },
@@ -33,6 +36,7 @@ const categories = [
     {
         id: 'drought',
         name: 'Drought',
+        icon: <IoSunnyOutline size={28} />,
         subcategories: [
             { id: 'cdd', name: 'CDD' },
             { id: 'cwd', name: 'CWD' },
@@ -81,42 +85,35 @@ export function Sidebar() {
 
     return (
         <div className="flex bg-white shadow-lg h-full overflow-hidden flex-shrink-0 z-20">
-            {/* Main Categories Column */}
-            <div className="w-64 p-4 border-r border-gray-200">
-                <h3 className="text-xl font-bold mb-4">Climate Insights</h3>
-                <div className="space-y-2">
-                    {categories.map(cat => (
-                        <button
-                            key={cat.id}
-                            onClick={() => handleCategoryClick(cat.id)}
-                            className={`w-full text-left font-semibold p-3 rounded hover:bg-gray-100 transition-colors flex justify-between items-center ${
-                                openCategory === cat.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
-                            }`}
-                        >
-                            <span>{cat.name}</span>
-                            <svg
-                                className={`w-4 h-4 transition-transform ${openCategory === cat.id ? 'rotate-180' : ''}`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                    ))}
-                </div>
+            {/* Main Categories Column*/}
+            <div className="w-24 p-2 border-r border-gray-200 flex flex-col items-center space-y-4 bg-gray-50">
+                <h3 className="text-lg font-semibold mb-2">Climate Insights <hr className="my-3 border-gray-200" /></h3>
+
+                {categories.map(cat => (
+                    <button
+                        key={cat.id}
+                        onClick={() => handleCategoryClick(cat.id)}
+                        className={`w-full flex flex-col items-center p-2 rounded-lg transition-colors focus:outline-none ${
+                            openCategory === cat.id ? 'bg-green-100 text-green-600' : 'hover:bg-gray-200'
+                        }`}
+                        title={cat.name}
+                    >
+                        {cat.icon}
+                        <span className="text-xs mt-1 font-semibold">{cat.name}</span>
+                    </button>
+                ))}
             </div>
 
             {/* Subcategories Column */}
             {selectedCategory && (
-                <div className="w-56 p-4 bg-gray-50 border-r border-gray-200 overflow-y-auto">
-                    <h4 className="text-lg font-semibold mb-4 text-gray-800">
+                <div className="w-60 p-4 bg-white border-r border-gray-200 overflow-y-auto">
+                    <h4 className="text-lg font-semibold my-4 text-gray-800">
                         {selectedCategory.name}
+                        <hr className="my-4 border-gray-200" />
                     </h4>
                     <div className="space-y-3">
                         {selectedCategory.subcategories.map(sub => (
-                            <div key={sub.id} className="flex items-center justify-between p-2 rounded hover:bg-white transition-colors">
+                            <div key={sub.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-100 transition-colors">
                                 <label htmlFor={`${selectedCategory.id}-${sub.id}`} className="text-gray-700 cursor-pointer flex-1 flex items-center">
                                     {sub.name}
                                     {infoContent[`${selectedCategory.id}-${sub.id}`] && (

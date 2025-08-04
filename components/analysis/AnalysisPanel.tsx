@@ -13,7 +13,7 @@ export function AnalysisPanel() {
   const showRasterPicker = !['climatology', 'spi', 'spei'].includes(activeSubcategory);
 
   return (
-    <div className="absolute top-4 right-4 w-[28rem] max-w-[calc(100%-2rem)] bg-white rounded-lg shadow-xl z-10 p-4 max-h-[calc(100vh-2rem)] flex flex-col">
+    <div className="absolute top-4 left-4 w-[25rem] max-w-[calc(100%-2rem)] bg-white rounded-lg shadow-xl z-10 p-4 max-h-[calc(100vh-2rem)] flex flex-col">
       <div className="flex justify-between items-center mb-2 flex-shrink-0">
         <h4 className="font-bold text-lg text-gray-800">ANALYSIS</h4>
         <button onClick={() => actions.reset()} className="text-gray-400 hover:text-gray-800" title="Close">
