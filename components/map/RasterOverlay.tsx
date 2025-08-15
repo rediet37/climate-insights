@@ -3,43 +3,73 @@
 import { useQuery } from '@tanstack/react-query';
 import { ImageOverlay, Tooltip } from 'react-leaflet';
 import { LatLngBoundsExpression } from 'leaflet';
-import { useAppStore, Category, Subcategory } from '@/hooks/useAppStore';
-import {Spinner} from '@/components/shared/Spinner';
+import { useAppStore, Category, Subcategory, LegendData, SelectedGeometry } from '@/hooks/useAppStore';
+import { Spinner } from '@/components/shared/Spinner';
+import { useEffect } from 'react';
 
-async function fetchRasterData(category: Category, subcategory: Subcategory, key: string, isAnomaly: boolean) {
-  if (!category || !subcategory || !key || subcategory === 'climatology' || subcategory === 'spi' || subcategory === 'spei') return null;
+export interface RasterResponse {
+  image: string;
+  bounds: LatLngBoundsExpression;
+  legend: LegendData;
+}
+
+// FETCH FUNCTION WITH FINAL CORRECTION
+async function fetchRasterData(
+  category: Category,
+  subcategory: Subcategory,
+  key: string,
+  isAnomaly: boolean,
+  selectedGeometry: SelectedGeometry | null
+): Promise<RasterResponse | null> {
+  if (!category || !subcategory || !key || ['climatology', 'spi', 'spei'].includes(subcategory)) {
+    return null;
+  }
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const params = new URLSearchParams();
+  const endpoint = `${API_BASE_URL}/${category}/${subcategory}/raster-image`;
 
-  // parse the 'key' to generate query parameters
+  const params: any = {};
   if (subcategory === 'daily' || subcategory === 'cdd' || subcategory === 'cwd') {
     const [year, month, day] = key.split('-');
-    params.append('year', year);
-    params.append('month', month);
-    params.append('day', day);
+    params.year = year;
+    params.month = month;
+    params.day = day;
   } else if (subcategory === 'monthly') {
     const [year, month] = key.split('-');
-    params.append('year', year);
-    params.append('month', month);
+    params.year = year;
+    params.month = month;
   } else if (subcategory === 'seasonal') {
     const [season, year] = key.split('-');
-    params.append('season', season);
-    params.append('year', year);
+    params.season = season;
+    params.year = year;
   } else if (subcategory === 'annual') {
-    params.append('year', key);
+    params.year = key;
   }
 
   if (isAnomaly) {
-    params.append('anomaly', 'true');
+    params.anomaly = true;
   }
 
-  const url = `${API_BASE_URL}/${category}/${subcategory}/raster-image?${params.toString()}`;
-  
-  const res = await fetch(url);
+  const requestBody: { params: any; region?: string; geometry?: any } = {
+    params: params,
+  };
+
+  if (selectedGeometry) {
+    if (selectedGeometry.type === 'region' && selectedGeometry.name) {
+      // --- CORRECTED: Use the 'name' property as requested by the backend ---
+      requestBody.params.region = selectedGeometry.name;
+    } else if (selectedGeometry.type === 'custom') {
+      requestBody.geometry = selectedGeometry.geometry;
+    }
+  }
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(requestBody),
+  });
 
   if (!res.ok) {
-    // This will trigger the `isError` state in useQuery, including for 404 Not Found.
     throw new Error(`No data found for the selected parameters.`);
   }
 
@@ -47,23 +77,31 @@ async function fetchRasterData(category: Category, subcategory: Subcategory, key
 }
 
 export function RasterOverlay() {
-  const { activeCategory, activeSubcategory, selectedKey, isAnomaly } = useAppStore();
+  const { activeCategory, activeSubcategory, selectedKey, isAnomaly, selectedGeometry, actions } = useAppStore();
 
-  const { data, isLoading, isError } = useQuery<{ image: string; bounds: LatLngBoundsExpression }>({
-    // The queryKey includes all dependencies. When any of these change, useQuery will refetch.
-    queryKey: ['raster', activeCategory, activeSubcategory, selectedKey, isAnomaly], 
-    queryFn: () => fetchRasterData(activeCategory!, activeSubcategory!, selectedKey!, isAnomaly),    
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['raster', activeCategory, activeSubcategory, selectedKey, isAnomaly, selectedGeometry],
+    queryFn: () => fetchRasterData(activeCategory!, activeSubcategory!, selectedKey!, isAnomaly, selectedGeometry),
     enabled: !!activeCategory && !!activeSubcategory && !!selectedKey,
     retry: false,
+    staleTime: 1000 * 60 * 5,
   });
+
+  useEffect(() => {
+    if (data) {
+      actions.setLegendData(data.legend);
+    } else {
+      actions.setLegendData(null);
+    }
+  }, [data, actions]);
 
   if (isLoading) {
     return (
-        <Tooltip position={[9.145, 40.4897]} permanent direction="center" className="loading-tooltip">
-            <div className="p-4 bg-white/80 backdrop-blur-sm rounded-full shadow-lg">
-                <Spinner />
-            </div>
-        </Tooltip>
+      <Tooltip position={[9.145, 40.4897]} permanent direction="center" className="loading-tooltip">
+        <div className="p-4 bg-white/80 backdrop-blur-sm rounded-full shadow-lg">
+          <Spinner />
+        </div>
+      </Tooltip>
     );
   }
 
@@ -72,7 +110,7 @@ export function RasterOverlay() {
       <Tooltip position={[9.145, 40.4897]} permanent direction="center" className="error-tooltip">
         <div className="p-3 bg-red-100 text-red-700 font-semibold rounded-md shadow-lg text-center">
           <p>No map data available for {selectedKey}.</p>
-          <p className="text-xs font-normal">Please select a different date.</p>
+          <p className="text-xs font-normal">Please try a different selection.</p>
         </div>
       </Tooltip>
     );

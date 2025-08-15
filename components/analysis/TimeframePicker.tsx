@@ -5,19 +5,32 @@ import { useAppStore } from '@/hooks/useAppStore';
 import { useEffect, useState } from 'react';
 import { Spinner } from '../shared/Spinner';
 
-async function fetchAvailableDateRange() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/available-range`);
-  if (!res.ok) throw new Error('Failed to load available date range.');
-  return res.json() as Promise<{ start: string; end: string }>;
+async function fetchAvailableDateRange(category: string): Promise<{ start: string; end: string }> {
+  // Map 'drought' category to use the 'rainfall' endpoint
+  const endpointCategory = category === 'drought' ? 'rainfall' : category;
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpointCategory}/available-range`);
+  if (!res.ok) throw new Error(`Failed to load available date range for ${category}.`);
+
+  //data normalization
+  const rangeData = await res.json();
+  if (rangeData.end && String(rangeData.end).length === 4) {
+    rangeData.end = `${rangeData.end}-12-31`;
+  }
+  if (rangeData.start && String(rangeData.start).length === 4) {
+    rangeData.start = `${rangeData.start}-01-01`;
+  }
+
+  return rangeData;
 }
 
 export const TimeframePicker = () => {
-  const { timeframeStart, timeframeEnd, actions } = useAppStore();
+  const { activeCategory, timeframeStart, timeframeEnd, actions } = useAppStore();
   const [localError, setLocalError] = useState<string | null>(null);
 
   const { data: availableRange, isLoading } = useQuery({
-    queryKey: ['availableDateRange'],
-    queryFn: fetchAvailableDateRange,
+    queryKey: ['availableDateRange', activeCategory],
+    queryFn: () =>fetchAvailableDateRange(activeCategory!),
+    enabled: !!activeCategory, // Only run the query when a category is selected
     staleTime: Infinity, // This data is static for the session.
   });
 

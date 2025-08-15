@@ -3,17 +3,19 @@ import { useAppStore } from '@/hooks/useAppStore';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
-async function fetchAvailableDateRange() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/available-range`);
-  if (!res.ok) throw new Error('Failed to load available date range.');
-  return res.json() as Promise<{ start: string; end: string }>;
+async function fetchAvailableDateRange(category: string): Promise<{ start: string; end: string }> {
+  const endpointCategory = category === 'drought' ? 'rainfall' : category;
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpointCategory}/available-range`);
+  if (!res.ok) throw new Error(`Failed to load available date range for ${category}.`);
+  return res.json();
 }
 
 export const MonthPicker = () => {
-  const { selectedKey, actions } = useAppStore();
+  const { activeCategory, selectedKey, actions } = useAppStore();
   const { data: availableRange, isLoading } = useQuery({
-    queryKey: ['availableDateRange'],
-    queryFn: fetchAvailableDateRange,
+    queryKey: ['availableDateRange', activeCategory], // <-- DYNAMIC KEY
+    queryFn: () => fetchAvailableDateRange(activeCategory!),
+    enabled: !!activeCategory,
   });
 
   // Set default value

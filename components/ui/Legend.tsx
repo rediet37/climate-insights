@@ -1,89 +1,44 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@/hooks/useAppStore';
 
-interface LegendVisuals {
-  title: string;
-  gradient: string;
-}
-
-const legendVisualsMap: Record<string, LegendVisuals> = {
-  rainfall: {
-    title: 'Rainfall (mm)',
-    gradient: 'bg-gradient-to-r from-blue-100 to-blue-700',
-  },
-  temperature: {
-    title: 'Avg Temperature (°C)',
-    gradient: 'bg-gradient-to-r from-yellow-300 via-orange-500 to-red-600',
-  },
-  drought: {
-    title: 'Drought Index / Days',
-    gradient: 'bg-gradient-to-r from-yellow-200 via-orange-400 to-amber-800',
-  },
-  anomaly: {
-    title: 'Anomaly',
-    gradient: 'bg-gradient-to-r from-blue-500 via-gray-100 to-red-500',
-  },
+// We can define a set of default gradients
+const GRADIENTS: Record<string, string> = {
+  rainfall: 'bg-gradient-to-r from-blue-100 to-blue-700',
+  temperature: 'bg-gradient-to-r from-yellow-300 via-orange-500 to-red-600',
+  anomaly: 'bg-gradient-to-r from-blue-500 via-gray-100 to-red-500',
+  default: 'bg-gradient-to-r from-gray-200 to-gray-600',
 };
 
-interface RasterQueryData {
-  image: string;
-  bounds: number[][];
-  dataRange: {
-    min: number;
-    max: number;
-  };
-}
-
 export const Legend = () => {
-  const { activeCategory, activeSubcategory, selectedKey, isAnomaly } = useAppStore();
-  const isVisible =
-    !!activeCategory &&
-    !!selectedKey && 
-    activeSubcategory !== 'climatology' &&
-    activeSubcategory !== 'spi';
+  // Read the dynamic legend data and other state from the store
+  const { legendData, activeCategory, isAnomaly } = useAppStore();
 
-  const { data: rasterData } = useQuery<RasterQueryData>({
-    queryKey: ['raster', activeCategory, activeSubcategory, selectedKey, isAnomaly],
-    queryFn: async () => {
-      const anomalyQuery = isAnomaly ? '?anomaly=true' : '';
-      const res = await fetch(`/api/raster/${activeCategory}/${activeSubcategory}/${selectedKey}${anomalyQuery}`);
-      if (!res.ok) throw new Error('Failed to fetch raster data for legend');
-      return res.json();
-    },
-    enabled: isVisible, 
-  });
-
-  if (!isVisible || !rasterData?.dataRange) {
+  // The legend is only visible if there is data for it in the store.
+  if (!legendData) {
     return null;
   }
+  
+  // Determine which gradient and title to use
+  let gradientClass = GRADIENTS.default;
+  let title = 'Legend';
 
-  let visualKey = '';
   if (isAnomaly) {
-    visualKey = 'anomaly';
-  } else if (activeSubcategory === 'cdd' || activeSubcategory === 'cwd') {
-    visualKey = 'drought';
+      gradientClass = GRADIENTS.anomaly;
+      title = `Anomaly (${legendData.unit})`;
   } else if (activeCategory) {
-    visualKey = activeCategory;
+      gradientClass = GRADIENTS[activeCategory] || GRADIENTS.default;
+      title = `${activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1)} (${legendData.unit})`;
   }
-
-  const visuals = legendVisualsMap[visualKey];
-  if (!visuals) {
-    return null;
-  }
-
-  const { min, max } = rasterData.dataRange;
 
   return (
     <div className="absolute bottom-4 left-4 bg-white/80 backdrop-blur-sm p-3 rounded-md shadow-lg w-64 z-10">
-      <h4 className="font-semibold text-sm text-gray-800 mb-2">{visuals.title}</h4>
-      
-      <div className={`h-4 w-full rounded ${visuals.gradient}`}></div>
-      
-      <div className="flex justify-between text-xs text-gray-600 mt-1 font-mono">
-        <span>{min.toFixed(1)}</span>
-        <span>{max.toFixed(1)}</span>
+      <h4 className="font-semibold text-sm text-gray-800 mb-2">{title}</h4>
+      <div className={`h-4 w-full rounded ${gradientClass}`}></div>
+      <div className="flex justify-between text-xs text-gray-600 mt-1">
+        {/* Use the dynamic min/max values from the API response */}
+        <span>{legendData.min.toFixed(2)}</span>
+        <span>{legendData.max.toFixed(2)}</span>
       </div>
     </div>
   );

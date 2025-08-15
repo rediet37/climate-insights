@@ -1,0 +1,41 @@
+/* Fix for custom drawn areas */
+.leaflet-container path.leaflet-interactive {
+  pointer-events: auto !important;
+}
+
+/* Ensure vertices in drawing mode are clearly visible */
+.leaflet-draw-tooltip {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #000;
+  color: white;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-left: 10px;
+  z-index: 1000 !important;
+}
+
+/* Make the first marker more prominent to indicate where to close */
+.leaflet-marker-icon.leaflet-div-icon.leaflet-editing-icon.leaflet-touch-icon:first-child {
+  border: 2px solid #ff4500 !important;
+  background-color: #ffff00 !important;
+  transform: scale(1.5);
+  z-index: 1000 !important;
+}
+
+/* Make drawn polygon more visible with pulse animation */
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(76, 175, 80, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+.leaflet-interactive.custom-drawn {
+  animation: pulse-border 2s infinite;
+}

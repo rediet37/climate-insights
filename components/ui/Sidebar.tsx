@@ -2,7 +2,7 @@
 
 import { useAppStore } from '@/hooks/useAppStore';
 import { ToggleSwitch } from '../shared/ToggleSwitch';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { infoContent } from '@/lib/info-content';
 import { Modal } from '../shared/Modal';
 import { WiRain, WiThermometer } from 'react-icons/wi';
@@ -48,7 +48,8 @@ const categories = [
 
 export function Sidebar() {
     const [openCategory, setOpenCategory] = useState<string | null>(''); 
-    const { activeCategory, activeSubcategory, actions } = useAppStore();
+    const { activeCategory, activeSubcategory, sidebarNudgeTs, actions } = useAppStore();
+    const headerRef = useRef<HTMLHeadingElement>(null);
     const [modalInfo, setModalInfo] = useState<{ isOpen: boolean; contentKey: string }>({
         isOpen: false,
         contentKey: ''
@@ -83,11 +84,20 @@ export function Sidebar() {
 
     const selectedCategory = categories.find(cat => cat.id === openCategory);
 
+    // When nudged (region-first Analyse), ensure the sidebar draws attention
+    useEffect(() => {
+        if (!sidebarNudgeTs) return;
+        // Open the first category list if none is open
+        if (!openCategory && categories.length > 0) {
+            setOpenCategory(categories[0].id);
+        }
+    }, [sidebarNudgeTs]);
+
     return (
         <div className="flex bg-white shadow-lg h-full overflow-hidden flex-shrink-0 z-20">
             {/* Main Categories Column*/}
             <div className="w-24 p-2 border-r border-gray-200 flex flex-col items-center space-y-4 bg-gray-50">
-                <h3 className="text-lg font-semibold mb-2">Climate Insights <hr className="my-3 border-gray-200" /></h3>
+                <h3 ref={headerRef} className="text-lg font-semibold mb-2">Climate Insights <hr className="my-3 border-gray-200" /></h3>
 
                 {categories.map(cat => (
                     <button

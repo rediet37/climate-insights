@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from 'next/font/google';
 import "./globals.css";
+import "./draw-control.css";
+import "./custom-drawing.css";
 import Providers from '@/lib/providers';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -17,6 +19,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* This will ensure the Leaflet Draw styles are loaded on the client side */}
+        <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+      </head>
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>

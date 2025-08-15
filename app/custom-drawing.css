@@ -1,0 +1,57 @@
+/* Custom drawing styles */
+.drawing-cursor .leaflet-container {
+  cursor: crosshair !important;
+}
+
+.drawing-marker {
+  cursor: pointer;
+}
+
+.drawing-marker-first {
+  cursor: pointer;
+  z-index: 1000 !important;
+}
+
+.drawing-ready-to-close .leaflet-container {
+  cursor: pointer !important;
+}
+
+.drawing-instructions-tooltip {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #000;
+  color: white;
+  font-weight: bold;
+  padding: 8px 12px;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.polygon-completion-tooltip {
+  background-color: rgba(255, 87, 34, 0.8);
+  border: 2px solid #fff;
+  color: white;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+/* Animate first marker to draw attention */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.drawing-marker-first div {
+  animation: pulse 1.5s infinite;
+}
