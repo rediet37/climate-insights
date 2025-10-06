@@ -94,7 +94,7 @@ export function Sidebar() {
     }, [sidebarNudgeTs]);
 
     return (
-        <div className="flex bg-white shadow-lg h-full overflow-hidden flex-shrink-0 z-20">
+        <div className="flex bg-white shadow-xl h-full overflow-hidden flex-shrink-0 z-20 rounded-r-xl">
             {/* Main Categories Column*/}
             <div className="w-24 p-2 border-r border-gray-200 flex flex-col items-center space-y-4 bg-gray-50">
                 <h3 ref={headerRef} className="text-lg font-semibold mb-2">Climate Insights <hr className="my-3 border-gray-200" /></h3>
@@ -103,38 +103,61 @@ export function Sidebar() {
                     <button
                         key={cat.id}
                         onClick={() => handleCategoryClick(cat.id)}
-                        className={`w-full flex flex-col items-center p-2 rounded-lg transition-colors focus:outline-none ${
-                            openCategory === cat.id ? 'bg-green-100 text-green-600' : 'hover:bg-gray-200'
+                        className={`w-full flex flex-col items-center p-3 rounded-xl transition-all duration-200 focus:outline-none ${
+                            openCategory === cat.id 
+                                ? 'bg-gradient-to-r from-green-50 to-blue-50 text-blue-600 shadow-md transform scale-105' 
+                                : 'hover:bg-gray-100 text-gray-600'
                         }`}
                         title={cat.name}
                     >
-                        {cat.icon}
-                        <span className="text-xs mt-1 font-semibold">{cat.name}</span>
+                        <div className={`${openCategory === cat.id ? 'text-blue-500' : 'text-gray-500'}`}>
+                            {cat.icon}
+                        </div>
+                        <span className="text-xs mt-2 font-semibold">{cat.name}</span>
                     </button>
                 ))}
             </div>
 
             {/* Subcategories Column */}
             {selectedCategory && (
-                <div className="w-60 p-4 bg-white border-r border-gray-200 overflow-y-auto">
-                    <h4 className="text-lg font-semibold my-4 text-gray-800">
+                <div className="w-64 p-5 bg-white border-r border-gray-100 overflow-y-auto">
+                    <h4 className="text-xl font-bold my-3 text-gray-700 flex items-center">
+                        <span className="mr-2">{selectedCategory.icon}</span>
                         {selectedCategory.name}
                         <hr className="my-4 border-gray-200" />
                     </h4>
                     <div className="space-y-3">
                         {selectedCategory.subcategories.map(sub => (
-                            <div key={sub.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-100 transition-colors">
-                                <label htmlFor={`${selectedCategory.id}-${sub.id}`} className="text-gray-700 cursor-pointer flex-1 flex items-center">
+                            <div 
+                                key={sub.id} 
+                                className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200
+                                ${activeCategory === selectedCategory.id && activeSubcategory === sub.id
+                                    ? 'bg-gradient-to-r from-blue-50 to-green-50 shadow-sm'
+                                    : 'hover:bg-gray-50'
+                                }`}
+                            >
+                                <label 
+                                    htmlFor={`${selectedCategory.id}-${sub.id}`} 
+                                    className={`cursor-pointer flex-1 flex items-center font-medium
+                                    ${activeCategory === selectedCategory.id && activeSubcategory === sub.id
+                                        ? 'text-blue-600'
+                                        : 'text-gray-700'
+                                    }`}
+                                >
                                     {sub.name}
                                     {infoContent[`${selectedCategory.id}-${sub.id}`] && (
                                         <button 
-                                            className="ml-2 text-gray-400 hover:text-green-500 focus:outline-none" 
+                                            className={`ml-2 focus:outline-none rounded-full p-1 hover:bg-white transition-colors
+                                            ${activeCategory === selectedCategory.id && activeSubcategory === sub.id
+                                                ? 'text-blue-500 hover:text-blue-700'
+                                                : 'text-gray-400 hover:text-blue-500'
+                                            }`}
                                             onClick={(e) => handleInfoClick(e, selectedCategory.id, sub.id)}
                                             aria-label={`Information about ${sub.name}`}
                                         >
                                             <svg 
                                                 xmlns="http://www.w3.org/2000/svg" 
-                                                className="h-4 w-4" 
+                                                className="h-5 w-5" 
                                                 fill="none" 
                                                 viewBox="0 0 24 24" 
                                                 stroke="currentColor"

@@ -1,0 +1,84 @@
+/* Animation styles for the Climate Insights application */
+
+/* Fade in and scale animation for modals */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Subtle pulse animation for interactive elements */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}
+
+/* Glow animation for selections */
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.2);
+  }
+}
+
+/* Applied classes */
+.animate-fadeIn {
+  animation: fadeInScale 0.3s ease-out;
+}
+
+.animate-pulse-subtle {
+  animation: pulse 2s infinite;
+}
+
+.animate-glow {
+  animation: glow 2s infinite;
+}
+
+/* Special effect for the custom drawn areas */
+.custom-drawing-active {
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.5);
+  animation: glow 2s infinite;
+}
+
+/* Leaflet map enhancements */
+.leaflet-control-zoom {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: white !important;
+  color: #4a5568 !important;
+  width: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  font-size: 18px !important;
+  transition: all 0.2s ease !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #f8f9fa !important;
+  color: #2563eb !important;
+}
+
+.leaflet-container {
+  font-family: inherit !important;
+}

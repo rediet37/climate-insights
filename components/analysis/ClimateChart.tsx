@@ -38,11 +38,13 @@ export const ClimateChart = () => {
         end_year: String(endYear),
       };
 
-      if (activeSubcategory === 'daily') {
+      // Daily-like (include month & day) for standard daily plus drought daily indices cdd/cwd
+      if (activeSubcategory === 'daily' || activeSubcategory === 'cdd' || activeSubcategory === 'cwd') {
         const [_, month, day] = selectedKey.split('-');
         params.month = month;
         params.day = day;
-      } else if (activeSubcategory === 'monthly') {
+      // Monthly-like (single month across all years) for standard monthly plus spi/spei
+      } else if (activeSubcategory === 'monthly' || activeSubcategory === 'spi' || activeSubcategory === 'spei') {
         const [_, month] = selectedKey.split('-');
         params.month = month;
       } else if (activeSubcategory === 'seasonal') {
@@ -127,7 +129,7 @@ export const ClimateChart = () => {
 
   const getSubPeriodName = () => {
     if (!selectedKey || !activeSubcategory) return '';
-    if (activeSubcategory === 'monthly') {
+  if (activeSubcategory === 'monthly' || activeSubcategory === 'spi' || activeSubcategory === 'spei') {
       const monthIndex = parseInt(selectedKey.split('-')[1], 10) - 1;
       return new Date(0, monthIndex).toLocaleString('en-US', { month: 'long' });
     }

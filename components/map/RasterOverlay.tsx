@@ -13,7 +13,6 @@ export interface RasterResponse {
   legend: LegendData;
 }
 
-// FETCH FUNCTION WITH FINAL CORRECTION
 async function fetchRasterData(
   category: Category,
   subcategory: Subcategory,
@@ -56,7 +55,7 @@ async function fetchRasterData(
 
   if (selectedGeometry) {
     if (selectedGeometry.type === 'region' && selectedGeometry.name) {
-      // --- CORRECTED: Use the 'name' property as requested by the backend ---
+      // Use the 'name' property 
       requestBody.params.region = selectedGeometry.name;
     } else if (selectedGeometry.type === 'custom') {
       requestBody.geometry = selectedGeometry.geometry;

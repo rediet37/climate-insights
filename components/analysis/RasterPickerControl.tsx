@@ -14,6 +14,8 @@ export const RasterPickerControl = () => {
         case 'cwd':
             return <DayPicker />;
         case 'monthly':
+        case 'spi': // SPI needs month selection for timeseries (no raster fetched later)
+        case 'spei': // SPEI needs month selection
             return <MonthPicker />;
         case 'annual':
             return <YearPicker />;

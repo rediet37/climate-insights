@@ -103,9 +103,9 @@ export function DrawControl() {
       try {
         const center = (layer.getBounds && layer.getBounds().getCenter()) || map.getCenter();
         const popupHtml = `
-          <div style="min-width:180px">
+          <div style="min-width:80px">
             <div style="font-weight:600;margin-bottom:6px;">Custom Area</div>
-            <button id="custom-analyse-btn" style="background:#2563eb;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Analyse</button>
+            <button id="custom-analyse-btn" style="background:green;color:white;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Analyse</button>
           </div>
         `;
         const popup = L.popup({ closeOnClick: true })
@@ -223,8 +223,7 @@ export function DrawControl() {
             color: '#4CAF50',
             weight: 3,
             opacity: 1,
-            fillColor: '#4CAF50',
-            fillOpacity: 0.3,
+            fillColor: 'transparent'
           });
         }
         drawnItemsRef.current!.addLayer(l);

@@ -37,55 +37,61 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       role="dialog"
       aria-modal="true"
     >
-      {/* 1. The semi-transparent backdrop */}
+      {/* 1. The semi-transparent backdrop with blur effect */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
         aria-hidden="true"
         onClick={onClose} // Close the modal when the backdrop is clicked
       ></div>
 
-      {/* 2. The modal panel itself */}
+      {/* 2. The modal panel itself - with animation */}
       <div
         className="
-          relative bg-white rounded-lg shadow-xl 
+          relative bg-white rounded-xl shadow-2xl 
           w-full max-w-2xl max-h-[90vh] 
           flex flex-col
-          transform transition-all
+          transform transition-all animate-fadeIn
+          overflow-hidden
         "
+        style={{animation: 'fadeInScale 0.3s ease-out'}}
       >
-        {/* Modal Header */}
-        <div className="flex items-start justify-between p-4 border-b rounded-t">
-          <h3 className="text-xl font-semibold text-gray-900" id="modal-title">
+        {/* Modal Header - Improved styling */}
+        <div className="bg-gradient-to-r from-blue-600 to-green-500 text-white px-6 py-4 flex items-center justify-between">
+          <h3 className="text-xl font-bold" id="modal-title">
             {title}
           </h3>
           <button
             type="button"
-            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+            className="text-white bg-white/20 hover:bg-white/30 rounded-full p-1.5 transition-colors duration-200"
             onClick={onClose}
             aria-label="Close modal"
           >
             <svg
-              className="w-4 h-4"
+              className="w-5 h-5"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
-              viewBox="0 0 14 14"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
               <path
-                stroke="currentColor"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                d="M6 18L18 6M6 6l12 12"
               />
             </svg>
           </button>
         </div>
 
-        {/* Modal Body (this part is scrollable) */}
-        <div className="p-6 space-y-6 overflow-y-auto">
-          {children}
+        {/* Modal Body with improved styling */}
+        <div className="p-6 space-y-6 overflow-y-auto bg-gradient-to-b from-gray-50 to-white">
+          <div className="prose prose-blue max-w-none">
+            {children}
+          </div>
         </div>
+        
+        
       </div>
     </div>
   );

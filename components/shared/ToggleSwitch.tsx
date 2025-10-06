@@ -34,21 +34,27 @@ export const ToggleSwitch = ({
 
       <div
         className="
-          w-11 h-6 bg-gray-300 rounded-full 
-          transition-colors duration-200 ease-in-out
-          peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-green-500
-          peer-checked:bg-green-600
+          w-12 h-6 bg-gray-200 rounded-full 
+          transition-colors duration-300 ease-in-out
+          peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-offset-1 peer-focus:ring-blue-300
+          peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-green-500
+          shadow-inner
         "
       ></div>
 
       <div
         className="
-          absolute left-0.5 top-0.5 bg-white border-gray-300 border w-5 h-5 rounded-full
-          shadow-sm
-          transition-transform duration-200 ease-in-out
-          peer-checked:translate-x-5
+          absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full
+          shadow-md
+          transition-all duration-300 ease-in-out
+          peer-checked:translate-x-6 peer-checked:scale-110
+          flex items-center justify-center
         "
-      ></div>
+      >
+        {checked && (
+          <div className="absolute w-2 h-2 bg-blue-500 rounded-full opacity-70"></div>
+        )}
+      </div>
     </label>
   );
 };

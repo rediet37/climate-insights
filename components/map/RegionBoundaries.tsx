@@ -27,11 +27,11 @@ export function RegionBoundaries() {
                       selectedGeometry.id === feature.properties.id;
 
     return {
-      fillColor: isSelected ? '#4CAF50' : 'transparent',
+      fillColor: isSelected ? '#transparent' : 'transparent',
       weight: isSelected ? 3 : 1,
       opacity: 1,
       color: isSelected ? '#388E3C' : '#777777',
-      fillOpacity: isSelected ? 0.3 : 0,
+      fillOpacity: isSelected ? 0 : 0,
     };
   };
 
