@@ -41,9 +41,9 @@ export const ClimatologyDisplay = () => {
 
       // Handle spatial filtering
       if (selectedGeometry) {
-        if (selectedGeometry.type === 'region' && selectedGeometry.id) {
+        if (selectedGeometry.type === 'region' && selectedGeometry.name) {
           // For predefined regions, include the region name in params
-          requestBody.params.region = selectedGeometry.id;
+          requestBody.params.region = selectedGeometry.name;
         } else if (selectedGeometry.type === 'custom') {
           // For custom drawn areas, include the full geometry
           requestBody.geometry = selectedGeometry.geometry;

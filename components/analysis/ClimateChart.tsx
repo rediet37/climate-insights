@@ -62,7 +62,7 @@ export const ClimateChart = () => {
 
       if (selectedGeometry) {
         if (selectedGeometry.type === 'region' && selectedGeometry.name) {
-          // --- CORRECTED: Use the 'name' property as requested by the backend ---
+          // Use the 'name' property as requested by the backend ---
           requestBody.params.region = selectedGeometry.name;
         } else if (selectedGeometry.type === 'custom') {
           requestBody.geometry = selectedGeometry.geometry;

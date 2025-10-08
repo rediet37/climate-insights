@@ -47,7 +47,7 @@ export const Legend = () => {
   }
 
   return (
-    <div className="absolute bottom-4 left-4 bg-white/80 backdrop-blur-sm p-3 rounded-md shadow-lg w-64 z-10">
+    <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-sm p-3 rounded-md shadow-lg w-64 z-10">
       <h4 className="font-semibold text-sm text-gray-800 mb-2">{title}</h4>
       <div className={`h-4 w-full rounded ${gradientClass}`}></div>
       <div className="flex justify-between text-xs text-gray-600 mt-1">

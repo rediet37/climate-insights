@@ -55,7 +55,7 @@ async function fetchRasterData(
 
   if (selectedGeometry) {
     if (selectedGeometry.type === 'region' && selectedGeometry.name) {
-      // Use the 'name' property 
+      // Use the 'name' property of the regions instead of the 'id'
       requestBody.params.region = selectedGeometry.name;
     } else if (selectedGeometry.type === 'custom') {
       requestBody.geometry = selectedGeometry.geometry;
