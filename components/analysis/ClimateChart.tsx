@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { useAppStore, SelectedGeometry } from '@/hooks/useAppStore';
+import { useAppStore } from '@/hooks/useAppStore';
 import { Spinner } from '../shared/Spinner';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { Line } from 'react-chartjs-2';
@@ -24,7 +24,7 @@ export const ClimateChart = () => {
     selectedGeometry
   } = useAppStore();
 
-  const { data: responseData, isLoading, isError, error } = useQuery<TimeseriesResponse>({
+  const { data: responseData, isLoading, isError} = useQuery<TimeseriesResponse>({
     queryKey: ['interAnnualChart', activeCategory, activeSubcategory, timeframeStart, timeframeEnd, selectedKey, isAnomaly, selectedGeometry],
     queryFn: async () => {
       if (!activeCategory || !activeSubcategory || !timeframeStart || !timeframeEnd || !selectedKey) {
@@ -108,6 +108,50 @@ export const ClimateChart = () => {
 
   const selectedYear = selectedKey?.split('-')[0];
 
+  // Category-specific color palette (align with map legend)
+  type ColorSet = { line: string; fill: string; point: string; highlight: string };
+  const palette: { rainfall: ColorSet; temperature: ColorSet; droughtAmber: ColorSet; droughtGreen: ColorSet } = {
+    rainfall: {
+      line: 'rgb(54, 162, 235)',          // blue
+      fill: 'rgba(54, 162, 235, 0.2)',
+      point: 'rgb(54, 162, 235)',
+      highlight: 'rgb(30, 144, 255)',     // dodger blue
+    },
+    temperature: {
+      line: 'rgb(234, 67, 53)',           // red
+      fill: 'rgba(234, 67, 53, 0.2)',
+      point: 'rgb(234, 67, 53)',
+      highlight: 'rgb(255, 99, 132)',     // pinkish highlight
+    },
+    droughtAmber: {
+      line: 'rgb(245, 158, 11)',          // amber-500 (CDD, SPI, SPEI)
+      fill: 'rgba(245, 158, 11, 0.2)',
+      point: 'rgb(245, 158, 11)',
+      highlight: 'rgb(217, 119, 6)',      // amber-600
+    },
+    droughtGreen: {
+      line: 'rgb(16, 185, 129)',          // emerald-500 (CWD)
+      fill: 'rgba(16, 185, 129, 0.2)',
+      point: 'rgb(16, 185, 129)',
+      highlight: 'rgb(5, 150, 105)',      // emerald-600
+    },
+  };
+
+  // Choose colors based on category and subcategory
+  let colors: ColorSet = palette.rainfall;
+  if (activeCategory === 'rainfall') {
+    colors = palette.rainfall;
+  } else if (activeCategory === 'temperature') {
+    colors = palette.temperature;
+  } else if (activeCategory === 'drought') {
+    // Align with legend: CDD -> amber, CWD -> green, SPI/SPEI -> amber
+    if (activeSubcategory === 'cwd') {
+      colors = palette.droughtGreen;
+    } else {
+      colors = palette.droughtAmber;
+    }
+  }
+
   const lineChartData = {
     labels: labels,
     datasets: [
@@ -115,11 +159,11 @@ export const ClimateChart = () => {
         fill: true,
         label: `${activeCategory} data`,
         data: values,
-        borderColor: 'rgb(54, 162, 235)',
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: colors.line,
+        backgroundColor: colors.fill,
         tension: 0.1,
         pointRadius: labels.map(label => label === selectedYear ? 6 : 3),
-        pointBackgroundColor: labels.map(label => label === selectedYear ? 'rgb(255, 99, 132)' : 'rgb(54, 162, 235)'),
+        pointBackgroundColor: labels.map(label => label === selectedYear ? colors.highlight : colors.point),
         pointBorderWidth: 2,
         pointBorderColor: '#fff',
         pointHoverRadius: 8,
