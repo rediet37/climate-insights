@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@/hooks/useAppStore';
 import { Spinner } from '../shared/Spinner';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 function formatKeyForDisplay(key: string, subcategory: string | null): string {
   if (!key || !subcategory) return 'N/A';
@@ -23,7 +23,7 @@ function formatKeyForDisplay(key: string, subcategory: string | null): string {
       return `${season} ${year}`;
     }
     return key; // For 'annual'
-  } catch (e) {
+  } catch {
     return key;
   }
 }
@@ -46,16 +46,21 @@ export const DataControls = () => {
     staleTime: Infinity, // Config data is static, cache it forever
   });
 
-  const keys =
-    activeSubcategory === 'daily' || activeSubcategory === 'cdd' || activeSubcategory === 'cwd'
-      ? configData?.dates
-      : activeSubcategory === 'monthly' || activeSubcategory === 'spi'
-      ? configData?.months
-      : activeSubcategory === 'seasonal'
-      ? configData?.seasons
-      : activeSubcategory === 'annual'
-      ? configData?.years
-      : [];
+  const keys = useMemo(() => {
+    if (activeSubcategory === 'daily' || activeSubcategory === 'cdd' || activeSubcategory === 'cwd') {
+      return configData?.dates ?? [];
+    }
+    if (activeSubcategory === 'monthly' || activeSubcategory === 'spi') {
+      return configData?.months ?? [];
+    }
+    if (activeSubcategory === 'seasonal') {
+      return configData?.seasons ?? [];
+    }
+    if (activeSubcategory === 'annual') {
+      return configData?.years ?? [];
+    }
+    return [] as string[];
+  }, [activeSubcategory, configData]);
       
   const label =
     activeSubcategory === 'daily' || activeSubcategory === 'cdd' || activeSubcategory === 'cwd'

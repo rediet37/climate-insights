@@ -204,7 +204,7 @@ export const infoContent: Record<string, { title: string; content: React.ReactNo
         </InfoRow>
         <h4 className="font-bold mt-6 mb-2 text-lg">Overview</h4>
         <p className="text-gray-600">
-          Temperature climatology provides the expected "normal" temperature for a location and time period. Unlike other views that show time series or map data, the climatology view presents a single value representing the average temperature over your selected years.
+          Temperature climatology provides the expected &quot;normal&quot; temperature for a location and time period. Unlike other views that show time series or map data, the climatology view presents a single value representing the average temperature over your selected years.
         </p>
         <h4 className="font-bold mt-6 mb-2 text-lg">Using the Climatology Feature</h4>
         <p className="text-gray-600 mb-3">
@@ -236,7 +236,7 @@ export const infoContent: Record<string, { title: string; content: React.ReactNo
         </InfoRow>
         <h4 className="font-bold mt-6 mb-2 text-lg">Overview</h4>
         <p className="text-gray-600">
-          CDD is a simple but effective drought indicator that directly measures dry spell length. It's particularly useful for agricultural planning, as extended dry periods can severely impact crop growth even if seasonal rainfall totals are normal.
+          CDD is a simple but effective drought indicator that directly measures dry spell length. It&#39;s particularly useful for agricultural planning, as extended dry periods can severely impact crop growth even if seasonal rainfall totals are normal.
         </p>
       </div>
     ),
@@ -256,7 +256,7 @@ export const infoContent: Record<string, { title: string; content: React.ReactNo
         </InfoRow>
         <h4 className="font-bold mt-6 mb-2 text-lg">Overview</h4>
         <p className="text-gray-600">
-          CWD helps identify periods of persistent rainfall that could lead to flooding, waterlogging, or delayed planting/harvesting. It's complementary to CDD and together they provide insights into precipitation patterns beyond simple rainfall totals.
+          CWD helps identify periods of persistent rainfall that could lead to flooding, waterlogging, or delayed planting/harvesting. It&#39;s complementary to CDD and together they provide insights into precipitation patterns beyond simple rainfall totals.
         </p>
       </div>
     ),

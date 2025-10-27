@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@/hooks/useAppStore';
 import { Spinner } from '../shared/Spinner';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import type { ChartOptions } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -33,22 +34,22 @@ export const ClimateChart = () => {
 
       const startYear = new Date(timeframeStart).getFullYear();
       const endYear = new Date(timeframeEnd).getFullYear();
-      const params: any = {
+      const params: Record<string, string | boolean> = {
         start_year: String(startYear),
         end_year: String(endYear),
       };
 
       // Daily-like (include month & day) for standard daily plus drought daily indices cdd/cwd
       if (activeSubcategory === 'daily' || activeSubcategory === 'cdd' || activeSubcategory === 'cwd') {
-        const [_, month, day] = selectedKey.split('-');
+        const [, month, day] = selectedKey.split('-');
         params.month = month;
         params.day = day;
       // Monthly-like (single month across all years) for standard monthly plus spi/spei
       } else if (activeSubcategory === 'monthly' || activeSubcategory === 'spi' || activeSubcategory === 'spei') {
-        const [_, month] = selectedKey.split('-');
+        const [, month] = selectedKey.split('-');
         params.month = month;
       } else if (activeSubcategory === 'seasonal') {
-        const [season, _] = selectedKey.split('-');
+        const [season] = selectedKey.split('-');
         params.season = season;
       }
 
@@ -56,8 +57,8 @@ export const ClimateChart = () => {
         params.anomaly = true;
       }
 
-      const requestBody: { params: any; region?: string; geometry?: any } = {
-        params: params,
+      const requestBody: { params: Record<string, string | boolean>; region?: string; geometry?: unknown } = {
+        params,
       };
 
       if (selectedGeometry) {
@@ -183,7 +184,7 @@ export const ClimateChart = () => {
     return '';
   };
 
-  const chartOptions = {
+  const chartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -195,7 +196,11 @@ export const ClimateChart = () => {
       },
       tooltip: {
         callbacks: {
-          title: (context: any) => `${getSubPeriodName()} ${context[0].label}`,
+          title: (context: unknown) => {
+            const ctxArr = context as Array<Record<string, unknown>>;
+            const label = ctxArr[0]?.label as string | undefined;
+            return `${getSubPeriodName()} ${label ?? ''}`;
+          },
         },
       },
     },
@@ -205,5 +210,5 @@ export const ClimateChart = () => {
     },
   };
 
-  return <Line options={chartOptions as any} data={lineChartData} />;
+  return <Line options={chartOptions} data={lineChartData} />;
 };

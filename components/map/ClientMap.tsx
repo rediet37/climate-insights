@@ -1,7 +1,6 @@
 'use client';
 
 import { MapContainer, TileLayer } from 'react-leaflet';
-// @ts-ignore
 import 'leaflet/dist/leaflet.css';
 import { useAppStore } from '@/hooks/useAppStore';
 import { RasterOverlay } from './RasterOverlay';
@@ -9,7 +8,8 @@ import { RegionBoundaries } from './RegionBoundaries';
 import { DrawControl } from './DrawControl';
 
 export function MapComponent() {
-  const { activeCategory, activeSubcategory, selectedKey, isAnomaly } = useAppStore();
+  // Ensure the app store is subscribed so layers re-render when state changes.
+  useAppStore();
   
   const initialCenter: [number, number] = [9.102, 40.715];
 

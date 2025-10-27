@@ -12,7 +12,7 @@ export function DrawControl() {
   const map = useMap();
   const drawControlRef = useRef<L.Control.Draw | null>(null);
   const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
-  const polygonDrawHandlerRef = useRef<any>(null);
+  const polygonDrawHandlerRef = useRef<{ enable: () => void; disable: () => void } | null>(null);
 
   // One-time initialization of feature group, control, and event handlers
   useEffect(() => {
@@ -56,14 +56,14 @@ export function DrawControl() {
       },
       edit: {
         featureGroup: drawnItemsRef.current,
-        remove: true as any,
+        remove: true,
         edit: {
           selectedPathOptions: {
             fill: true,
             fillColor: '#4CAF50',
             fillOpacity: 0.3,
           }
-        } as any
+        }
       }
     });
 
@@ -71,11 +71,11 @@ export function DrawControl() {
     drawControlRef.current = drawControl;
 
     // Event: created
-  const onCreated = (event: any) => {
-      const layer = event.layer;
+  const onCreated = (event: unknown) => {
+      const layer = (event as { layer: L.Layer }).layer;
 
-      if (layer.setStyle) {
-        layer.setStyle({
+      if ((layer as L.Path).setStyle) {
+        (layer as L.Path).setStyle({
           color: '#4CAF50',
           weight: 3,
           opacity: 1,
@@ -88,7 +88,7 @@ export function DrawControl() {
       drawnItemsRef.current!.clearLayers();
       drawnItemsRef.current!.addLayer(layer);
 
-      const geometry = layer.toGeoJSON().geometry;
+  const geometry = (layer as L.Polygon).toGeoJSON().geometry as GeoJSON.Geometry;
       const newGeometry: SelectedGeometry = {
         type: 'custom',
         name: 'Custom Area',
@@ -101,7 +101,8 @@ export function DrawControl() {
 
       // Popup with Analyse button at polygon center
       try {
-        const center = (layer.getBounds && layer.getBounds().getCenter()) || map.getCenter();
+        const center = ((layer as unknown as { getBounds?: () => L.LatLngBounds }).getBounds?.() &&
+          (layer as unknown as { getBounds: () => L.LatLngBounds }).getBounds().getCenter()) || map.getCenter();
         const popupHtml = `
           <div style="min-width:80px">
             <div style="font-weight:600;margin-bottom:6px;">Custom Area</div>
@@ -122,7 +123,7 @@ export function DrawControl() {
             };
           }
         }, 0);
-      } catch {}
+  } catch {}
 
       if (polygonDrawHandlerRef.current) {
         polygonDrawHandlerRef.current.disable();
@@ -134,10 +135,10 @@ export function DrawControl() {
     };
 
     // Event: edited
-    const onEdited = (event: any) => {
-      const layers = event.layers;
-      layers.eachLayer((layer: any) => {
-        const geometry = layer.toGeoJSON().geometry;
+    const onEdited = (event: unknown) => {
+      const layers = (event as { layers: L.FeatureGroup }).layers;
+      layers.eachLayer((layer: L.Layer) => {
+        const geometry = (layer as L.Polygon).toGeoJSON().geometry as GeoJSON.Geometry;
         const updatedGeometry: SelectedGeometry = {
           type: 'custom',
           name: 'Custom Area (Edited)',
@@ -188,10 +189,11 @@ export function DrawControl() {
       actions.setSelectedGeometry(null);
     }
 
-    // Start polygon drawing programmatically with the control's options
-    const polygonOptions = (drawControlRef.current as any).options.draw.polygon;
-    polygonDrawHandlerRef.current = new (L.Draw as any).Polygon(map, polygonOptions);
-    polygonDrawHandlerRef.current.enable();
+  // Start polygon drawing programmatically with the control's options
+  const polygonOptions = (drawControlRef.current as unknown as { options: { draw: { polygon: unknown } } }).options.draw.polygon;
+  const DrawPolygon = (L as unknown as { Draw: { Polygon: new (map: L.Map, options?: unknown) => { enable: () => void; disable: () => void } } }).Draw.Polygon;
+  polygonDrawHandlerRef.current = new DrawPolygon(map, polygonOptions);
+  polygonDrawHandlerRef.current.enable();
   }, [isDrawingMode, map, actions, selectedGeometry]);
 
   // Update the drawn items when selectedGeometry changes
@@ -201,11 +203,11 @@ export function DrawControl() {
     drawnItemsRef.current.clearLayers();
 
     if (selectedGeometry && selectedGeometry.type === 'custom') {
-      const geoJSON = {
+      const geoJSON: GeoJSON.Feature<GeoJSON.Geometry> = {
         type: 'Feature',
         properties: {},
         geometry: selectedGeometry.geometry,
-      } as any;
+      };
 
       const layer = L.geoJSON(geoJSON, {
         style: {
@@ -217,9 +219,9 @@ export function DrawControl() {
         }
       });
 
-      layer.eachLayer((l: any) => {
-        if (l.setStyle) {
-          l.setStyle({
+      layer.eachLayer((l: L.Layer) => {
+        if ((l as L.Path).setStyle) {
+          (l as L.Path).setStyle({
             color: '#4CAF50',
             weight: 3,
             opacity: 1,

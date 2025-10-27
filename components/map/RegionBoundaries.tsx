@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAppStore, Region } from '@/hooks/useAppStore';
+import { useAppStore } from '@/hooks/useAppStore';
 import { GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Feature, Geometry } from 'geojson';
@@ -48,7 +48,7 @@ export function RegionBoundaries() {
 
     // Add click event handler
     layer.on({
-      click: (e) => {
+      click: (e: L.LeafletMouseEvent) => {
         // Don't select regions when in drawing mode
         if (isDrawingMode) {
           return;
@@ -71,8 +71,6 @@ export function RegionBoundaries() {
             geometry: feature.geometry
           };
 
-          // If no category selected, we are in region-first mode: reset analysis and set geometry
-          const isRegionFirst = true; // we don't have activeCategory here; store handles the reset
           actions.setRegionFirstSelection(geometry);
 
           // small popup with Analyse action
@@ -83,7 +81,7 @@ export function RegionBoundaries() {
             </div>
           `;
 
-          const latlng = (e as any).latlng || (layer as any).getBounds?.().getCenter?.();
+          const latlng = e.latlng || ((layer as unknown as { getBounds?: () => L.LatLngBounds }).getBounds?.().getCenter?.());
           if (latlng) {
             const popup = L.popup({ closeOnClick: true })
               .setLatLng(latlng)
@@ -110,8 +108,8 @@ export function RegionBoundaries() {
         }
       },
       // Optional: add mouseover and mouseout events for hover effects
-      mouseover: (e) => {
-        const layer = e.target;
+      mouseover: (e: L.LeafletMouseEvent) => {
+        const layer = e.target as unknown as L.Path;
         const isSelected = selectedGeometry?.type === 'region' && 
                           selectedGeometry.id === feature.properties.id;
                           
@@ -122,8 +120,8 @@ export function RegionBoundaries() {
           });
         }
       },
-      mouseout: (e) => {
-        const layer = e.target;
+      mouseout: (e: L.LeafletMouseEvent) => {
+        const layer = e.target as unknown as L.Path;
         const isSelected = selectedGeometry?.type === 'region' && 
                           selectedGeometry.id === feature.properties.id;
                           
@@ -139,7 +137,7 @@ export function RegionBoundaries() {
 
   return (
     <GeoJSON 
-      data={ethiopiaRegions as any} 
+      data={ethiopiaRegions} 
       style={getRegionStyle}
       onEachFeature={onEachFeature}
     />

@@ -27,7 +27,7 @@ async function fetchRasterData(
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   const endpoint = `${API_BASE_URL}/${category}/${subcategory}/raster-image`;
 
-  const params: any = {};
+  const params: Record<string, string | boolean> = {};
   if (subcategory === 'daily' || subcategory === 'cdd' || subcategory === 'cwd') {
     const [year, month, day] = key.split('-');
     params.year = year;
@@ -49,8 +49,8 @@ async function fetchRasterData(
     params.anomaly = true;
   }
 
-  const requestBody: { params: any; region?: string; geometry?: any } = {
-    params: params,
+  const requestBody: { params: Record<string, string | boolean>; region?: string; geometry?: unknown } = {
+    params,
   };
 
   if (selectedGeometry) {
@@ -78,7 +78,7 @@ async function fetchRasterData(
 export function RasterOverlay() {
   const { activeCategory, activeSubcategory, selectedKey, isAnomaly, selectedGeometry, actions } = useAppStore();
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['raster', activeCategory, activeSubcategory, selectedKey, isAnomaly, selectedGeometry],
     queryFn: () => fetchRasterData(activeCategory!, activeSubcategory!, selectedKey!, isAnomaly, selectedGeometry),
     enabled: !!activeCategory && !!activeSubcategory && !!selectedKey,

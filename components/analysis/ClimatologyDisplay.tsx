@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '@/hooks/useAppStore';
 import { Spinner } from '../shared/Spinner';
-import { useState } from 'react';
 
 interface ClimatologyResponse {
   value: number;
@@ -27,16 +26,16 @@ export const ClimatologyDisplay = () => {
 
       const startYear = new Date(timeframeStart).getFullYear();
       const endYear = new Date(timeframeEnd).getFullYear();
-      const params: any = {
+      const params: Record<string, string> = {
         start_year: String(startYear),
         end_year: String(endYear),
       };
 
-      const requestBody: { 
-        params: typeof params;
+      const requestBody: {
+        params: Record<string, string>;
         geometry?: unknown;
       } = {
-        params: params,
+        params,
       };
 
       // Handle spatial filtering

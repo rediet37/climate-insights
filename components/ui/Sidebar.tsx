@@ -1,14 +1,21 @@
 'use client';
 
-import { useAppStore } from '@/hooks/useAppStore';
+import { useAppStore, Category, Subcategory } from '@/hooks/useAppStore';
 import { ToggleSwitch } from '../shared/ToggleSwitch';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { infoContent } from '@/lib/info-content';
 import { Modal } from '../shared/Modal';
 import { WiRain, WiThermometer } from 'react-icons/wi';
 import { IoSunnyOutline } from "react-icons/io5";
 
-const categories = [
+type NonNull<T> = T extends null ? never : T;
+
+const categories: {
+    id: NonNull<Category>;
+    name: string;
+    icon: ReactElement;
+    subcategories: { id: NonNull<Subcategory>; name: string }[];
+}[] = [
     {
         id: 'rainfall',
         name: 'Rainfall',
@@ -55,11 +62,11 @@ export function Sidebar() {
         contentKey: ''
     });
 
-    const handleToggle = (cat: 'rainfall' | 'temperature' | 'drought', sub: string) => {
+    const handleToggle = (cat: NonNull<Category>, sub: NonNull<Subcategory>) => {
         if (activeCategory === cat && activeSubcategory === sub) {
             actions.reset();
         } else {
-            actions.setActive(cat, sub as any); 
+            actions.setActive(cat, sub);
         }
     };
 
@@ -91,7 +98,7 @@ export function Sidebar() {
         if (!openCategory && categories.length > 0) {
             setOpenCategory(categories[0].id);
         }
-    }, [sidebarNudgeTs]);
+    }, [sidebarNudgeTs, openCategory]);
 
     return (
         <div className="flex bg-white shadow-xl h-full overflow-hidden flex-shrink-0 z-20 rounded-r-xl">
@@ -175,7 +182,7 @@ export function Sidebar() {
                                 <ToggleSwitch
                                     id={`${selectedCategory.id}-${sub.id}`}
                                     checked={activeCategory === selectedCategory.id && activeSubcategory === sub.id}
-                                    onChange={() => handleToggle(selectedCategory.id as any, sub.id)}
+                                    onChange={() => handleToggle(selectedCategory.id, sub.id)}
                                 />
                             </div>
                         ))}
