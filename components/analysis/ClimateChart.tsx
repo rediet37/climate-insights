@@ -1,3 +1,4 @@
+// Renders a line chart (react-chartjs-2) for the selected period and key.
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +15,11 @@ interface TimeseriesResponse {
   period: [number, number];
 }
 
+/**
+ * ClimateChart
+ * Fetches inter-annual timeseries for the current selection and renders line chart.
+ * Query key includes category/subcategory/timeframe/selection/anomaly/geometry to ensure proper caching.
+ */
 export const ClimateChart = () => {
   const {
     activeCategory,
@@ -63,7 +69,7 @@ export const ClimateChart = () => {
 
       if (selectedGeometry) {
         if (selectedGeometry.type === 'region' && selectedGeometry.name) {
-          // Use the 'name' property as requested by the backend ---
+          // The region name string on params is sent to the backend instead of the region ID
           requestBody.params.region = selectedGeometry.name;
         } else if (selectedGeometry.type === 'custom') {
           requestBody.geometry = selectedGeometry.geometry;
@@ -109,7 +115,7 @@ export const ClimateChart = () => {
 
   const selectedYear = selectedKey?.split('-')[0];
 
-  // Category-specific color palette (align with map legend)
+  // Category-specific color palette 
   type ColorSet = { line: string; fill: string; point: string; highlight: string };
   const palette: { rainfall: ColorSet; temperature: ColorSet; droughtAmber: ColorSet; droughtGreen: ColorSet } = {
     rainfall: {
@@ -138,14 +144,12 @@ export const ClimateChart = () => {
     },
   };
 
-  // Choose colors based on category and subcategory
   let colors: ColorSet = palette.rainfall;
   if (activeCategory === 'rainfall') {
     colors = palette.rainfall;
   } else if (activeCategory === 'temperature') {
     colors = palette.temperature;
   } else if (activeCategory === 'drought') {
-    // Align with legend: CDD -> amber, CWD -> green, SPI/SPEI -> amber
     if (activeSubcategory === 'cwd') {
       colors = palette.droughtGreen;
     } else {

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Feature, Geometry, GeoJsonObject } from 'geojson';
 
+// Top-level data category and subcategory controls the API endpoints and layers used
 export type Category = 'rainfall' | 'temperature' | 'drought' | null;
 export type Subcategory = 'daily' | 'monthly' | 'seasonal' | 'annual' | 'climatology' | 'cdd' | 'cwd' | 'spi' | 'spei' | null;
 export type Region = string | null;
@@ -11,7 +12,7 @@ export interface LegendData {
   unit: string;
 }
 
-// Define the shape of our selected geometry
+// Selected geometry attached to current analysis (either a named region or custom polygon)
 export interface SelectedGeometry {
   type: 'region' | 'custom'; // Indicates if this is a predefined region or user-drawn
   id?: string;              // Region ID if type is 'region'
@@ -67,7 +68,7 @@ const initialState = {
 export const useAppStore = create<AppState>((set, get) => ({
   ...initialState,
   actions: {
-    // Preserve selectedGeometry when activating a category (important for region-first)
+    // Changing the active category/subcategory does not clear the current geometry selection
     setActive: (category, subcategory) => set((state) => ({
       activeCategory: category,
       activeSubcategory: subcategory,
@@ -90,7 +91,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
     },
     setSelectedGeometry: (geometry) => {
-      // When setting a new geometry, update the selectedRegion for compatibility
+      // Keep selectedRegion in sync when geometry points to a named region
       if (geometry && geometry.type === 'region' && geometry.id) {
         set({ selectedGeometry: geometry, selectedRegion: geometry.id });
       } else if (geometry === null) {
@@ -101,17 +102,17 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
     },
     setDrawingMode: (isDrawing) => set({ isDrawingMode: isDrawing }),
-    // Region-first: reset analysis parameters and set geometry
+    // Region-first flow: reset analysis parameters and set geometry
     setRegionFirstSelection: (geometry) => {
       set({
-        // reset analysis-related state
+        // Reset analysis-related state
         activeCategory: null,
         activeSubcategory: null,
         timeframeStart: null,
         timeframeEnd: null,
         selectedKey: null,
         isAnomaly: false,
-        // set geometry
+        // Set geometry
         selectedGeometry: geometry,
         selectedRegion: geometry.type === 'region' && geometry.id ? geometry.id : null,
       });

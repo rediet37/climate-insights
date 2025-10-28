@@ -1,3 +1,5 @@
+// Controls the analysis time window. Fetches available date range per category
+// and lets users set start/end (or year range for climatology).
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -6,12 +8,12 @@ import { useEffect, useState } from 'react';
 import { Spinner } from '../shared/Spinner';
 
 async function fetchAvailableDateRange(category: string): Promise<{ start: string; end: string }> {
-  // Map 'drought' category to use the 'rainfall' endpoint
+  // Backend uses rainfall range for drought indices
   const endpointCategory = category === 'drought' ? 'rainfall' : category;
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpointCategory}/available-range`);
   if (!res.ok) throw new Error(`Failed to load available date range for ${category}.`);
 
-  //data normalization
+  // Normalize year-only responses to full dates
   const rangeData = await res.json();
   if (rangeData.end && String(rangeData.end).length === 4) {
     rangeData.end = `${rangeData.end}-12-31`;
@@ -23,6 +25,12 @@ async function fetchAvailableDateRange(category: string): Promise<{ start: strin
   return rangeData;
 }
 
+/**
+ * TimeframePicker
+ * - Loads the available date range for the current category
+ * - Defaults to a 5-year window ending at the latest available date
+ * - For climatology: uses numeric year inputs and maps to full dates
+ */
 export const TimeframePicker = () => {
   const { activeCategory, activeSubcategory, timeframeStart, timeframeEnd, actions } = useAppStore();
   const [localError, setLocalError] = useState<string | null>(null);

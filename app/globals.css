@@ -60,3 +60,64 @@ body {
 .leaflet-pm-toolbar .leaflet-pm-icon {
   border-radius: 4px !important;
 }
+
+/* Climate Insights: Custom popup effects not covered by Tailwind */
+.ci-popup-card-gradient {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+}
+
+.ci-btn-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ci-btn-shimmer:hover::after {
+  opacity: 1;
+}
+
+.ci-btn-green-gradient {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.ci-btn-green-gradient:hover {
+  background: linear-gradient(135deg, #26d266 0%, #15803d 100%);
+}
+
+.ci-btn-arrow::before {
+  content: "→";
+  font-weight: bold;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.ci-btn-arrow:hover::before {
+  transform: translateX(2px);
+}
+
+/* Override Leaflet popup styling for smoother integration */
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 12px 28px rgba(0,0,0,0.08) !important;
+  overflow: hidden !important;
+  backdrop-filter: blur(8px);
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}

@@ -23,6 +23,72 @@
   z-index: 1000 !important;
 }
 
+/* Toolbar container styling */
+.leaflet-draw-toolbar {
+  background: #ffffff !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  padding: 4px !important;
+}
+
+/* Individual draw control buttons */
+.leaflet-draw-toolbar a {
+  background-color: #ffffff !important;
+  border-radius: 8px !important;
+  margin: 2px !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  width: 33px !important;
+  height: 33px !important;
+  display: block !important;
+}
+
+.leaflet-draw-toolbar a:hover {
+  transform: translateY(-1px) scale(1.03) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18), 0 3px 8px rgba(0, 0, 0, 0.12) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+.leaflet-draw-toolbar a:active {
+  transform: translateY(0) scale(0.98) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Disabled state */
+.leaflet-draw-toolbar a.leaflet-disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(30%);
+}
+
+/* Edit toolbar chip */
+.leaflet-draw-actions {
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  padding: 4px 6px !important;
+}
+
+.leaflet-draw-actions a:hover {
+  background-color: #636363 !important; /* gray-100 */
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Editing vertices - subtle polish */
+.leaflet-marker-icon.leaflet-div-icon.leaflet-editing-icon {
+  border: 2px solid #059936 !important; /* blue-500 */
+  background-color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(33, 121, 21, 0.35), 0 0 0 2px rgba(33, 121, 21, 0.35) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.leaflet-marker-icon.leaflet-div-icon.leaflet-editing-icon:hover {
+  box-shadow: 0 4px 12px rgba(33, 121, 21, 0.35), 0 0 0 3px rgba(33, 121, 21, 0.25) !important;
+}
+
 /* Make drawn polygon more visible with pulse animation */
 @keyframes pulse-border {
   0% {

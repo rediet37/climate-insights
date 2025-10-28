@@ -8,7 +8,7 @@ import { Feature, Geometry } from 'geojson';
 import ethiopiaRegions, { RegionProperties } from '@/data';
 
 export function RegionBoundaries() {
-  const { selectedGeometry, isDrawingMode, actions } = useAppStore();
+  const { selectedGeometry, actions } = useAppStore();
   const map = useMap();
 
   // Reset map view when region selection changes
@@ -50,7 +50,7 @@ export function RegionBoundaries() {
     layer.on({
       click: (e: L.LeafletMouseEvent) => {
         // Don't select regions when in drawing mode
-        if (isDrawingMode) {
+        if (useAppStore.getState().isDrawingMode) {
           return;
         }
         
@@ -75,9 +75,22 @@ export function RegionBoundaries() {
 
           // small popup with Analyse action
           const popupHtml = `
-            <div style="min-width:80px">
-              <div style="font-weight:600;margin-bottom:6px;">${feature.properties.name} Region</div>
-              <button id="region-analyse-btn" style="display:block;background:green;color:white;border:none;margin-left:auto;margin-right:auto;padding:8px 10px;border-radius:6px;cursor:pointer;">Analyse</button>
+            <div class="min-w-[160px] px-2 py-2">
+              <div class="flex items-center gap-1.5 font-bold text-[18px] leading-tight text-slate-800 mb-3">
+                <span class="text-2xl">📍</span>
+                <span>${feature.properties.name}</span>
+              </div>
+              <div class="flex justify-center pb-1.5">
+                <button 
+                  id="region-analyse-btn" 
+                  class="appearance-none border-0 rounded-lg px-5 py-2 font-semibold text-[14px] text-white cursor-pointer transition-all duration-150 ease-out inline-flex items-center gap-1 relative overflow-hidden bg-green-500 hover:bg-green-600 shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/30 hover:-translate-y-0.5 active:translate-y-0.5" 
+                  aria-label="Analyse ${feature.properties.name} region">
+                  <span>Analyse</span>
+                  <svg class="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             </div>
           `;
 
@@ -109,6 +122,11 @@ export function RegionBoundaries() {
       },
       // Optional: add mouseover and mouseout events for hover effects
       mouseover: (e: L.LeafletMouseEvent) => {
+        if (useAppStore.getState().isDrawingMode) {
+          const anyLayer = e.target as unknown as { closeTooltip?: () => void };
+          anyLayer.closeTooltip?.();
+          return;
+        }
         const layer = e.target as unknown as L.Path;
         const isSelected = selectedGeometry?.type === 'region' && 
                           selectedGeometry.id === feature.properties.id;
@@ -121,6 +139,7 @@ export function RegionBoundaries() {
         }
       },
       mouseout: (e: L.LeafletMouseEvent) => {
+        if (useAppStore.getState().isDrawingMode) return;
         const layer = e.target as unknown as L.Path;
         const isSelected = selectedGeometry?.type === 'region' && 
                           selectedGeometry.id === feature.properties.id;

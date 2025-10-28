@@ -1,3 +1,5 @@
+// Client-only wrapper around Leaflet's MapContainer and drawing layers.
+// Renders the basemap plus app-specific overlays.
 'use client';
 
 import { MapContainer, TileLayer } from 'react-leaflet';
@@ -7,6 +9,12 @@ import { RasterOverlay } from './RasterOverlay';
 import { RegionBoundaries } from './RegionBoundaries';
 import { DrawControl } from './DrawControl';
 
+/**
+ * MapComponent
+ * - Owns the Leaflet MapContainer and base TileLayer
+ * - Mounts app overlays: Region boundaries, Draw controls, Raster overlay
+ * - Subscribes to app store so overlays re-render with user selections
+ */
 export function MapComponent() {
   // Ensure the app store is subscribed so layers re-render when state changes.
   useAppStore();

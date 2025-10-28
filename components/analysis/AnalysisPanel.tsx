@@ -1,3 +1,4 @@
+// Analysis overlay that appears over the map when a category/subcategory is active.
 'use client';
 import { useAppStore } from '@/hooks/useAppStore';
 import { TimeframePicker } from './TimeframePicker';
@@ -9,32 +10,35 @@ import { ClimatologyDisplay } from './ClimatologyDisplay';
 import { WiRain, WiThermometer } from 'react-icons/wi';
 import { IoSunnyOutline } from "react-icons/io5";
 
+/**
+ * AnalysisPanel
+ * Shows timeframe, raster/season/month pickers, optional anomaly toggle, and the chart.
+ * Only renders when both activeCategory and activeSubcategory are set.
+ */
 export function AnalysisPanel() {
   const { activeCategory, activeSubcategory, selectedGeometry, isAnomaly, actions } = useAppStore();
   if (!activeCategory || !activeSubcategory) return null;
 
-  // Don't show raster picker for spi, spei, and climatology
+  // Raster picker is hidden for SPI/SPEI/climatology
   const showRasterPicker = !['spi', 'spei', 'climatology'].includes(activeSubcategory);
-  // Explicitly exclude anomaly toggle for cdd & cwd (per requirement)
+  // Exclude anomaly toggle for CDD/CWD indices
   const showAnomalyToggle = showRasterPicker && !['cdd', 'cwd'].includes(activeSubcategory);
 
-  // Ensure anomaly state is cleared if user switches into cdd/cwd while anomaly was on
-  // (prevents sending anomaly=true param to endpoints that don't support it)
+  // Clear anomaly when switching into CDD/CWD (those endpoints ignore anomaly)
   if (['cdd', 'cwd'].includes(activeSubcategory) && isAnomaly) {
     // Fire-and-forget synchronous state update; harmless in render since condition short-circuits after toggle
     actions.setAnomaly(false);
   }
   
-  // Don't show chart for climatology
+  // Hide chart for climatology mode
   const showChart = activeSubcategory !== 'climatology';
 
-  // Format region name for display
+  // Format region name for display in the header
   const getRegionDisplayName = () => {
     if (!selectedGeometry) return null;
     
     if (selectedGeometry.type === 'region') {
-      // Check to see if the selectedRegion is in the format used in et.json (like "ETTI" for Tigray)
-      // In a real app, you'd probably have a mapping or lookup from the geojson itself
+  // Map common region codes (from et.json) to display names
       const regionMap: Record<string, string> = {
         'ETTI': 'Tigray',
         'ETAM': 'Amhara',

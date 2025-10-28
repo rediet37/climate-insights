@@ -17,23 +17,25 @@
 }
 
 .drawing-instructions-tooltip {
-  background-color: rgba(0, 0, 0, 0.7);
-  border: 1px solid #000;
-  color: white;
-  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 600;
   padding: 8px 12px;
-  border-radius: 4px;
+  border-radius: 8px;
   z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .polygon-completion-tooltip {
-  background-color: rgba(255, 87, 34, 0.8);
-  border: 2px solid #fff;
-  color: white;
-  font-weight: bold;
-  padding: 4px 8px;
-  border-radius: 4px;
+  background-color: rgba(255, 87, 34, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 8px;
   z-index: 1000;
+  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.4);
 }
 
 /* Animate first marker to draw attention */
@@ -53,5 +55,15 @@
 }
 
 .drawing-marker-first div {
-  animation: pulse 1.5s infinite;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Subtle polish on vertex markers */
+.leaflet-marker-icon.leaflet-div-icon {
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.leaflet-marker-icon.leaflet-div-icon:hover {
+  transform: scale(1.05);
+  filter: brightness(1.05);
 }

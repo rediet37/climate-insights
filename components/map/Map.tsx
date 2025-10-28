@@ -1,7 +1,8 @@
 
-// A wrapper to handle dynamic import
+// Dynamic import wrapper to avoid SSR issues with Leaflet in Next.js App Router.
 import dynamic from 'next/dynamic';
 
+// Export a client-only Map component (loads ClientMap on the browser)
 export const Map = dynamic(
   () => import('./ClientMap'), 
   {
