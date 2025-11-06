@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Feature, Geometry, GeoJsonObject } from 'geojson';
+import { Geometry } from 'geojson';
 
 // Top-level data category and subcategory controls the API endpoints and layers used
 export type Category = 'rainfall' | 'temperature' | 'drought' | null;
@@ -17,7 +17,7 @@ export interface SelectedGeometry {
   type: 'region' | 'custom'; // Indicates if this is a predefined region or user-drawn
   id?: string;              // Region ID if type is 'region'
   name?: string;            // Display name
-  geometry: Geometry;       // The actual GeoJSON geometry...maybeee change to GeoJsonObject
+  geometry: Geometry;       // The actual GeoJSON geometry
 }
 
 interface AppState {

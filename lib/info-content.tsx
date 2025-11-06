@@ -94,23 +94,11 @@ export const infoContent: Record<string, { title: string; content: React.ReactNo
         <InfoRow label="Source">
           CHIRPS (Climate Hazards Group InfraRed Precipitation with Station data).
         </InfoRow>
-        <InfoRow label="Usage">
-          It serves as a baseline to determine if current weather patterns are normal, wetter, or drier than average. Use this for understanding typical rainfall patterns in your region of interest.
-        </InfoRow>
         <h4 className="font-bold mt-6 mb-2 text-lg">Overview</h4>
         <p className="text-gray-600">
           Climatology is the foundation of climate analysis. Unlike other views that show time series or map data, the climatology view presents a single value representing the average rainfall over your selected years, helping you understand long-term patterns.
         </p>
-        <h4 className="font-bold mt-6 mb-2 text-lg">Using the Climatology Feature</h4>
-        <p className="text-gray-600 mb-3">
-          1. Select a range of years using the year pickers in the Timeframe control.
-        </p>
-        <p className="text-gray-600 mb-3">
-          2. The system will calculate and display the average rainfall value for that time period.
-        </p>
-        <p className="text-gray-600 mb-3">
-          3. You can compare values across different regions by selecting different areas on the map.
-        </p>
+        
       </div>
     )
   },
@@ -199,23 +187,11 @@ export const infoContent: Record<string, { title: string; content: React.ReactNo
         <InfoRow label="Source">
           ERA5 reanalysis dataset from the European Centre for Medium-Range Weather Forecasts (ECMWF).
         </InfoRow>
-        <InfoRow label="Usage">
-          Serves as a baseline to determine if current temperature patterns are normal, warmer, or cooler than average. Use this for understanding typical temperature patterns in your region of interest.
-        </InfoRow>
         <h4 className="font-bold mt-6 mb-2 text-lg">Overview</h4>
         <p className="text-gray-600">
           Temperature climatology provides the expected &quot;normal&quot; temperature for a location and time period. Unlike other views that show time series or map data, the climatology view presents a single value representing the average temperature over your selected years.
         </p>
-        <h4 className="font-bold mt-6 mb-2 text-lg">Using the Climatology Feature</h4>
-        <p className="text-gray-600 mb-3">
-          1. Select a range of years using the year pickers in the Timeframe control.
-        </p>
-        <p className="text-gray-600 mb-3">
-          2. The system will calculate and display the average temperature value for that time period.
-        </p>
-        <p className="text-gray-600 mb-3">
-          3. You can compare values across different regions by selecting different areas on the map.
-        </p>
+        
       </div>
     ),
   },
