@@ -7,22 +7,43 @@ import { useAppStore } from '@/hooks/useAppStore';
 import { useEffect, useState } from 'react';
 import { Spinner } from '../shared/Spinner';
 
+const FALLBACK_AVAILABLE_RANGE = {
+  start: '1981-01-01',
+  end: '2024-12-31',
+} as const;
+
+function normalizeAvailableRange(rangeData: { start: string; end: string }): { start: string; end: string } {
+  const normalized = { ...rangeData };
+
+  // Normalize year-only responses to full dates
+  if (normalized.end && String(normalized.end).length === 4) {
+    normalized.end = `${normalized.end}-12-31`;
+  }
+  if (normalized.start && String(normalized.start).length === 4) {
+    normalized.start = `${normalized.start}-01-01`;
+  }
+
+  return normalized;
+}
+
 async function fetchAvailableDateRange(category: string): Promise<{ start: string; end: string }> {
   // Backend uses rainfall range for drought indices
   const endpointCategory = category === 'drought' ? 'rainfall' : category;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpointCategory}/available-range`);
-  if (!res.ok) throw new Error(`Failed to load available date range for ${category}.`);
 
-  // Normalize year-only responses to full dates
-  const rangeData = await res.json();
-  if (rangeData.end && String(rangeData.end).length === 4) {
-    rangeData.end = `${rangeData.end}-12-31`;
-  }
-  if (rangeData.start && String(rangeData.start).length === 4) {
-    rangeData.start = `${rangeData.start}-01-01`;
-  }
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpointCategory}/available-range`);
+    if (!res.ok) {
+      throw new Error(`Failed to load available date range for ${category} (HTTP ${res.status}).`);
+    }
 
-  return rangeData;
+    const rangeData = await res.json();
+    return normalizeAvailableRange(rangeData);
+  } catch (err) {
+    // Temporary: allow the rest of the requests to run even before the backend
+    // provides an available-range endpoint.
+    console.warn(`Using fallback available range for ${category}.`, err);
+    return FALLBACK_AVAILABLE_RANGE;
+  }
 }
 
 /**
@@ -38,7 +59,7 @@ export const TimeframePicker = () => {
 
   const { data: availableRange, isLoading } = useQuery({
     queryKey: ['availableDateRange', activeCategory],
-    queryFn: () =>fetchAvailableDateRange(activeCategory!),
+    queryFn: () => fetchAvailableDateRange(activeCategory!),
     enabled: !!activeCategory, // Only run the query when a category is selected
     staleTime: Infinity, // This data is static for the session.
   });

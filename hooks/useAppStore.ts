@@ -1,5 +1,9 @@
 import { create } from 'zustand';
 import { Geometry } from 'geojson';
+import { AdminLevel } from '@/data';
+
+// Re-export AdminLevel for convenience
+export type { AdminLevel } from '@/data';
 
 // Top-level data category and subcategory controls the API endpoints and layers used
 export type Category = 'rainfall' | 'temperature' | 'drought' | null;
@@ -12,10 +16,10 @@ export interface LegendData {
   unit: string;
 }
 
-// Selected geometry attached to current analysis (either a named region or custom polygon)
+// Selected geometry attached to current analysis (either a named region/woreda or custom polygon)
 export interface SelectedGeometry {
-  type: 'region' | 'custom'; // Indicates if this is a predefined region or user-drawn
-  id?: string;              // Region ID if type is 'region'
+  type: 'region' | 'woreda' | 'custom'; // Indicates if this is a predefined region, woreda, or user-drawn
+  id?: string;              // Region/Woreda ID if type is 'region' or 'woreda'
   name?: string;            // Display name
   geometry: Geometry;       // The actual GeoJSON geometry
 }
@@ -33,6 +37,7 @@ interface AppState {
   selectedGeometry: SelectedGeometry | null;
   isDrawingMode: boolean;
   sidebarNudgeTs?: number | null;
+  adminLevel: AdminLevel;
 
   actions: {
     setActive: (category: Category, subcategory: Subcategory) => void;
@@ -45,6 +50,7 @@ interface AppState {
     setSelectedGeometry: (geometry: SelectedGeometry | null) => void;
     setDrawingMode: (isDrawing: boolean) => void;
     setRegionFirstSelection: (geometry: SelectedGeometry) => void;
+    setAdminLevel: (level: AdminLevel) => void;
     nudgeSidebar: () => void;
     reset: () => void;
   };
@@ -63,6 +69,7 @@ const initialState = {
   selectedGeometry: null,
   isDrawingMode: false,
   sidebarNudgeTs: null,
+  adminLevel: 'region' as AdminLevel,
 };
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -91,8 +98,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
     },
     setSelectedGeometry: (geometry) => {
-      // Keep selectedRegion in sync when geometry points to a named region
-      if (geometry && geometry.type === 'region' && geometry.id) {
+      // Keep selectedRegion in sync when geometry points to a named region or woreda
+      if (geometry && (geometry.type === 'region' || geometry.type === 'woreda') && geometry.id) {
         set({ selectedGeometry: geometry, selectedRegion: geometry.id });
       } else if (geometry === null) {
         set({ selectedGeometry: null, selectedRegion: null });
@@ -102,7 +109,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
     },
     setDrawingMode: (isDrawing) => set({ isDrawingMode: isDrawing }),
-    // Region-first flow: reset analysis parameters and set geometry
+    // Region/Woreda-first flow: reset analysis parameters and set geometry
     setRegionFirstSelection: (geometry) => {
       set({
         // Reset analysis-related state
@@ -114,8 +121,13 @@ export const useAppStore = create<AppState>((set, get) => ({
         isAnomaly: false,
         // Set geometry
         selectedGeometry: geometry,
-        selectedRegion: geometry.type === 'region' && geometry.id ? geometry.id : null,
+        selectedRegion: (geometry.type === 'region' || geometry.type === 'woreda') && geometry.id ? geometry.id : null,
       });
+    },
+    // Set the admin level (nationwide, region, woreda)
+    setAdminLevel: (level) => {
+      // Clear selection when changing admin level
+      set({ adminLevel: level, selectedGeometry: null, selectedRegion: null });
     },
     // Sidebar visual nudge signal
     nudgeSidebar: () => set({ sidebarNudgeTs: Date.now() }),

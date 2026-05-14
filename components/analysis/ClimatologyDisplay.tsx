@@ -43,6 +43,9 @@ export const ClimatologyDisplay = () => {
         if (selectedGeometry.type === 'region' && selectedGeometry.name) {
           // For predefined regions, include the region name in params
           requestBody.params.region = selectedGeometry.name;
+        } else if (selectedGeometry.type === 'woreda' && selectedGeometry.name) {
+          // For predefined woredas, include the woreda name in params
+          requestBody.params.woreda = selectedGeometry.name;
         } else if (selectedGeometry.type === 'custom') {
           // For custom drawn areas, include the full geometry
           requestBody.geometry = selectedGeometry.geometry;

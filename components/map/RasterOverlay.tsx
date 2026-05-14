@@ -57,6 +57,9 @@ async function fetchRasterData(
     if (selectedGeometry.type === 'region' && selectedGeometry.name) {
       // Use the 'name' property of the regions instead of the 'id'
       requestBody.params.region = selectedGeometry.name;
+    } else if (selectedGeometry.type === 'woreda' && selectedGeometry.name) {
+      // Use the 'name' property (shapeName) of the woredas
+      requestBody.params.woreda = selectedGeometry.name;
     } else if (selectedGeometry.type === 'custom') {
       requestBody.geometry = selectedGeometry.geometry;
     }

@@ -71,6 +71,9 @@ export const ClimateChart = () => {
         if (selectedGeometry.type === 'region' && selectedGeometry.name) {
           // The region name string on params is sent to the backend instead of the region ID
           requestBody.params.region = selectedGeometry.name;
+        } else if (selectedGeometry.type === 'woreda' && selectedGeometry.name) {
+          // The woreda name string on params is sent to the backend
+          requestBody.params.woreda = selectedGeometry.name;
         } else if (selectedGeometry.type === 'custom') {
           requestBody.geometry = selectedGeometry.geometry;
         }

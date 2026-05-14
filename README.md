@@ -16,6 +16,22 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Troubleshooting
+
+### Windows + OneDrive / Files On-Demand (os error 362)
+
+If the project lives under a OneDrive-synced folder, Next.js may fail to write to `.next/` and show an "Internal Server Error" with a message like:
+
+`The cloud file provider is not running. (os error 362)`
+
+Fixes:
+
+- Make sure OneDrive is running and signed in.
+- In File Explorer, right-click the project folder and choose **Always keep on this device**.
+- (Most reliable) Move the repo to a non-OneDrive path (e.g. `C:\dev\climate-insights`).
+
+Note: Turbopack is more sensitive to filesystem/provider issues. If you want Turbopack, use `npm run dev:turbopack`.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

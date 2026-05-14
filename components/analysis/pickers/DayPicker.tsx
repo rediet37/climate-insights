@@ -3,12 +3,36 @@ import { useAppStore } from '@/hooks/useAppStore';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
+const FALLBACK_AVAILABLE_RANGE = {
+  start: '1981-01-01',
+  end: '2024-12-31',
+} as const;
+
+function normalizeAvailableRange(rangeData: { start: string; end: string }): { start: string; end: string } {
+  const normalized = { ...rangeData };
+  if (normalized.end && String(normalized.end).length === 4) {
+    normalized.end = `${normalized.end}-12-31`;
+  }
+  if (normalized.start && String(normalized.start).length === 4) {
+    normalized.start = `${normalized.start}-01-01`;
+  }
+  return normalized;
+}
+
 // This is now the ONLY config data the pickers need.
 async function fetchAvailableDateRange(category: string): Promise<{ start: string; end: string }> {
   const endpointCategory = category === 'drought' ? 'rainfall' : category;
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpointCategory}/available-range`);
-  if (!res.ok) throw new Error(`Failed to load available date range for ${category}.`);
-  return res.json();
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${endpointCategory}/available-range`);
+    if (!res.ok) {
+      throw new Error(`Failed to load available date range for ${category} (HTTP ${res.status}).`);
+    }
+    const rangeData = await res.json();
+    return normalizeAvailableRange(rangeData);
+  } catch (err) {
+    console.warn(`Using fallback available range for ${category}.`, err);
+    return FALLBACK_AVAILABLE_RANGE;
+  }
 }
 
 export const DayPicker = () => {

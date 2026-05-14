@@ -7,17 +7,18 @@ import 'leaflet/dist/leaflet.css';
 import { useAppStore } from '@/hooks/useAppStore';
 import { RasterOverlay } from './RasterOverlay';
 import { RegionBoundaries } from './RegionBoundaries';
+import { WoredaBoundaries } from './WoredaBoundaries';
 import { DrawControl } from './DrawControl';
 
 /**
  * MapComponent
  * - Owns the Leaflet MapContainer and base TileLayer
- * - Mounts app overlays: Region boundaries, Draw controls, Raster overlay
+ * - Mounts app overlays: Region/Woreda boundaries, Draw controls, Raster overlay
  * - Subscribes to app store so overlays re-render with user selections
  */
 export function MapComponent() {
   // Ensure the app store is subscribed so layers re-render when state changes.
-  useAppStore();
+  const { adminLevel } = useAppStore();
   
   const initialCenter: [number, number] = [9.102, 40.715];
 
@@ -28,8 +29,10 @@ export function MapComponent() {
           attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>'
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
         />
-  <RegionBoundaries />
-  <DrawControl />
+        {/* Render boundaries based on admin level */}
+        {adminLevel === 'region' && <RegionBoundaries />}
+        {adminLevel === 'woreda' && <WoredaBoundaries />}
+        <DrawControl />
         <RasterOverlay />
       </MapContainer>
       

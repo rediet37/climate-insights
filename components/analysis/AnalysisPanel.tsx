@@ -33,12 +33,12 @@ export function AnalysisPanel() {
   // Hide chart for climatology mode
   const showChart = activeSubcategory !== 'climatology';
 
-  // Format region name for display in the header
+  // Format region/woreda name for display in the header
   const getRegionDisplayName = () => {
     if (!selectedGeometry) return null;
     
     if (selectedGeometry.type === 'region') {
-  // Map common region codes (from et.json) to display names
+      // Map common region codes (from et.json) to display names
       const regionMap: Record<string, string> = {
         'ETTI': 'Tigray',
         'ETAM': 'Amhara',
@@ -54,10 +54,21 @@ export function AnalysisPanel() {
       };
       
       return selectedGeometry.name || regionMap[selectedGeometry.id!] || selectedGeometry.id;
+    } else if (selectedGeometry.type === 'woreda') {
+      // For woredas, use the name directly (shapeName from GeoJSON)
+      return selectedGeometry.name || selectedGeometry.id;
     } else {
       // For custom drawn areas
       return selectedGeometry.name || 'Custom Area';
     }
+  };
+
+  // Get the label for the selection type
+  const getSelectionTypeLabel = () => {
+    if (!selectedGeometry) return null;
+    if (selectedGeometry.type === 'region') return 'Region';
+    if (selectedGeometry.type === 'woreda') return 'Woreda';
+    return 'Custom Area';
   };
 
   return (
@@ -80,24 +91,34 @@ export function AnalysisPanel() {
         </button>
       </div>
       
-      {/* Region selection banner */}
+      {/* Region/Woreda selection banner */}
       {selectedGeometry && (
         <div className="bg-gradient-to-r from-blue-50 to-green-50 p-3 flex justify-between items-center border-b border-blue-100">
           <span className="text-blue-800 font-medium flex items-center">
-            {selectedGeometry.type === 'region' 
-              ? <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                  {getRegionDisplayName()} Region
-                </>
-              : <>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-                  </svg>
-                  Custom Area Selection
-                </>
-            }
+            {selectedGeometry.type === 'region' && (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                {getRegionDisplayName()} Region
+              </>
+            )}
+            {selectedGeometry.type === 'woreda' && (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1.5 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                </svg>
+                {getRegionDisplayName()} Woreda
+              </>
+            )}
+            {selectedGeometry.type === 'custom' && (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                </svg>
+                Custom Area Selection
+              </>
+            )}
           </span>
           <button 
             onClick={() => actions.setSelectedGeometry(null)}

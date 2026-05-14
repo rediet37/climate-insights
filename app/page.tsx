@@ -1,6 +1,7 @@
 'use client';
 
 import { AnalysisPanel } from "@/components/analysis/AnalysisPanel";
+import { AdminLevelPicker } from "@/components/analysis/AdminLevelPicker";
 import { Map } from "@/components/map/Map";
 import { Sidebar } from "@/components/ui/Sidebar";
 import { Legend } from "@/components/ui/Legend";
@@ -18,6 +19,7 @@ export default function Home() {
       <div className="flex-grow h-full relative">
         <Map />
         <AnalysisPanel />
+        <AdminLevelPicker />
         <Legend />
       </div>
     </main>

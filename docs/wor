@@ -1,0 +1,287 @@
+# Woreda Feature - Detailed Description
+
+## Overview
+
+The Woreda feature extends the Climate Insights application to support **ADM3-level (Woreda) administrative boundary analysis** in addition to the existing Nationwide and ADM1-level (Region) analysis. Woredas are the third-level administrative divisions in Ethiopia, providing finer-grained climate analysis capabilities.
+
+---
+
+## Architecture
+
+### Data Layer
+
+**File: index.ts**
+
+Added new types and exports for woreda data:
+
+```typescript
+// New interface for woreda GeoJSON properties
+export interface WoredaProperties {
+  shapeID: string;      // Unique identifier (e.g., "ETH-ADM3-3_0_0-B1")
+  shapeName: string;    // Display name (e.g., "Nefas Silk", "Bole", "Kirkos")
+  shapeGroup: string;   // Country code ("ETH")
+  shapeType: string;    // Admin level ("ADM3")
+}
+
+// Union type for all admin levels
+export type AdminLevel = 'nationwide' | 'region' | 'woreda';
+
+// Export the woreda GeoJSON data
+import woredaData from './geoBoundaries-ETH-ADM3.json';
+export const ethiopiaWoredas = woredaData as FeatureCollection<Geometry, WoredaProperties>;
+```
+
+**Data Source:** The woreda boundaries come from `geoBoundaries-ETH-ADM3.json`, which contains GeoJSON FeatureCollection with polygon geometries for each of Ethiopia's woredas.
+
+---
+
+### State Management
+
+**File: useAppStore.ts**
+
+Extended the Zustand store with:
+
+1. **New State Property:**
+   ```typescript
+   adminLevel: AdminLevel  // Tracks current analysis level: 'nationwide' | 'region' | 'woreda'
+   ```
+
+2. **New Action:**
+   ```typescript
+   setAdminLevel: (level: AdminLevel) => void  // Changes the active admin level
+   ```
+
+3. **Updated SelectedGeometry Type:**
+   ```typescript
+   interface SelectedGeometry {
+     type: 'region' | 'woreda' | 'custom';  // Added 'woreda' as valid type
+     name: string;                           // Region or Woreda name
+     geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon;
+   }
+   ```
+
+4. **Behavior:** When `adminLevel` changes, the store automatically clears any selected geometry to prevent stale selections.
+
+---
+
+### Map Components
+
+#### WoredaBoundaries Component (New)
+
+**File: WoredaBoundaries.tsx**
+
+A new React-Leaflet component that renders interactive woreda boundaries:
+
+**Features:**
+- Renders all woreda polygons from the GeoJSON data
+- **Hover Effects:** Woredas highlight on mouse hover with increased opacity and thicker borders
+- **Tooltips:** Shows woreda name on hover
+- **Click Selection:** Clicking a woreda selects it for analysis
+- **Visual Feedback:** Selected woredas have distinct styling (green fill, thicker border)
+
+**Styling:**
+```typescript
+// Default style
+{ color: '#6B7280', weight: 1, opacity: 0.6, fillColor: '#9CA3AF', fillOpacity: 0.1 }
+
+// Hover style
+{ weight: 2, fillOpacity: 0.3 }
+
+// Selected style
+{ color: '#059669', weight: 3, fillColor: '#10B981', fillOpacity: 0.3 }
+```
+
+**Selection Logic:**
+- On click, extracts the woreda's `shapeName` and geometry
+- Stores in app state as `{ type: 'woreda', name: shapeName, geometry }`
+
+---
+
+#### ClientMap Updates
+
+**File: ClientMap.tsx**
+
+Conditionally renders boundary layers based on `adminLevel`:
+
+```tsx
+{adminLevel === 'region' && <RegionBoundaries />}
+{adminLevel === 'woreda' && <WoredaBoundaries />}
+```
+
+When on "Nationwide" level, neither boundary layer is rendered.
+
+---
+
+### UI Components
+
+#### AdminLevelPicker (New)
+
+**File: AdminLevelPicker.tsx**
+
+A floating UI control for switching between analysis levels:
+
+**Position:** Top-right corner of the map (uses absolute positioning)
+
+**Appearance:**
+- White card with shadow and rounded corners
+- Header: "ANALYSIS LEVEL"
+- Three buttons: Nationwide, Regions, Woredas
+- Active button has green background (#10B981)
+
+**Behavior:**
+- Clicking a button calls `setAdminLevel()` from the store
+- The active level is visually highlighted
+- Changing levels clears any current selection
+
+---
+
+#### AnalysisPanel Updates
+
+**File: AnalysisPanel.tsx**
+
+Updated the `getRegionDisplayName()` helper to handle woreda names:
+
+```typescript
+const getRegionDisplayName = (geometry: SelectedGeometry | null) => {
+  if (!geometry) return 'Nationwide';
+  if (geometry.type === 'custom') return 'Custom Area';
+  if (geometry.type === 'woreda') return `${geometry.name} Woreda`;
+  return `${geometry.name} Region`;
+};
+```
+
+This ensures the panel header displays:
+- "Nationwide" when no selection
+- "Afar Region" for region selections
+- "Nefas Silk Woreda" for woreda selections
+- "Custom Area" for drawn polygons
+
+---
+
+### API Integration
+
+The woreda parameter is sent to the backend in all data-fetching requests, following the same pattern as the existing `region` parameter.
+
+#### ClimateChart Updates
+
+**File: ClimateChart.tsx**
+
+```typescript
+// Build request body
+const requestBody: ApiRequestBody = { params: { ... } };
+
+if (selectedGeometry) {
+  if (selectedGeometry.type === 'custom') {
+    requestBody.geometry = selectedGeometry.geometry;
+  } else if (selectedGeometry.type === 'woreda') {
+    requestBody.params.woreda = selectedGeometry.name;  // NEW
+  } else {
+    requestBody.params.region = selectedGeometry.name;
+  }
+}
+```
+
+#### RasterOverlay Updates
+
+**File: RasterOverlay.tsx**
+
+Same pattern - adds `woreda` to `params` when a woreda is selected:
+
+```typescript
+if (selectedGeometry?.type === 'woreda') {
+  requestBody.params.woreda = selectedGeometry.name;
+}
+```
+
+#### ClimatologyDisplay Updates
+
+**File: ClimatologyDisplay.tsx**
+
+Same pattern for climatology requests:
+
+```typescript
+if (selectedGeometry?.type === 'woreda') {
+  requestBody.params.woreda = selectedGeometry.name;
+}
+```
+
+---
+
+### API Contract Documentation
+
+**File: API_CONTRACT.md**
+
+Updated to document the new `woreda` parameter:
+
+**Endpoint Descriptions:**
+- All three endpoints (raster-image, timeseries, climatology) now list `woreda` as an optional parameter
+- Spatial filter description updated: "choose one of `region`, `woreda` (in params) OR `geometry` (top-level)"
+
+**New Examples Added:**
+```http
+### Example: Predefined Woreda
+POST /rainfall/monthly/raster-image
+{
+  "params": {
+    "year": "2023",
+    "month": "06",
+    "woreda": "Nefas Silk"
+  }
+}
+
+### Example: Woreda Temperature Time-Series
+POST /temperature/monthly/timeseries
+{
+  "params": {
+    "start_year": "2015",
+    "end_year": "2023",
+    "month": "03",
+    "woreda": "Bole"
+  }
+}
+
+### Example: Rainfall Climatology (Woreda)
+POST /rainfall/climatology
+{
+  "params": {
+    "start_year": "2005",
+    "end_year": "2015",
+    "woreda": "Kirkos"
+  }
+}
+```
+
+**Conventions Updated:**
+- Added note 7: "Spatial filters are mutually exclusive: use `region` (ADM1) for regional analysis, `woreda` (ADM3) for woreda-level analysis, or `geometry` for custom polygons."
+
+---
+
+## User Flow
+
+1. **User opens app** → Default view shows Regions level
+2. **User clicks "Woredas"** in AdminLevelPicker → Map switches to show woreda boundaries
+3. **User hovers over a woreda** → Woreda highlights and shows tooltip with name
+4. **User clicks a woreda** → Woreda is selected (green highlight), AnalysisPanel opens
+5. **AnalysisPanel shows** "Nefas Silk Woreda" as header, "View Nationwide →" link
+6. **API requests include** `{ "params": { "woreda": "Nefas Silk", ... } }`
+7. **Charts and raster** update to show data for that specific woreda
+
+---
+
+## File Summary
+
+| File | Change Type | Purpose |
+|------|-------------|---------|
+| index.ts | Modified | Added types and export for woreda data |
+| geoBoundaries-ETH-ADM3.json | Added | GeoJSON boundaries for all woredas |
+| useAppStore.ts | Modified | Added adminLevel state and woreda support |
+| WoredaBoundaries.tsx | **New** | Interactive woreda boundary layer |
+| ClientMap.tsx | Modified | Conditional boundary rendering |
+| AdminLevelPicker.tsx | **New** | UI for switching admin levels |
+| page.tsx | Modified | Added AdminLevelPicker to layout |
+| AnalysisPanel.tsx | Modified | Handle woreda names in display |
+| ClimateChart.tsx | Modified | Add woreda param to API requests |
+| RasterOverlay.tsx | Modified | Add woreda param to API requests |
+| ClimatologyDisplay.tsx | Modified | Add woreda param to API requests |
+| API_CONTRACT.md | Modified | Document woreda parameter |
+| json.d.ts | Modified | Added .geojson type declaration |

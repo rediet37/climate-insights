@@ -119,7 +119,7 @@ Generates a base64 PNG overlay plus legend metadata for a single timestep.
 
 Method: POST
 Path: `/{category}/{subcategory}/raster-image`
-Spatial Filter: choose one of `region` (in params) OR `geometry` (top-level)
+Spatial Filter: choose one of `region`, `woreda` (in params) OR `geometry` (top-level)
 Typical Categories: rainfall, temperature, drought (`cdd`, `cwd`)
 
 Request `params` keys:
@@ -128,7 +128,8 @@ Request `params` keys:
   - day (string, conditional) – 2‑digit day for daily context
   - season (string, conditional) – season code for seasonal context
   - anomaly (boolean, optional) – request anomaly layer if true
-  - region (string, optional) – mutually exclusive with top-level geometry
+  - region (string, optional) – ADM1 region name, mutually exclusive with woreda and geometry
+  - woreda (string, optional) – ADM3 woreda name, mutually exclusive with region and geometry
 
 Success (200 OK):
 ```json
@@ -144,7 +145,7 @@ Returns a value per year across a span for a specified sub‑period (e.g. a mont
 
 Method: POST
 Path: `/{category}/{subcategory}/timeseries`
-Spatial Filter: `region` OR `geometry`
+Spatial Filter: `region`, `woreda` OR `geometry`
 Use Cases: SPI/SPEI, monthly rainfall, seasonal temperature, etc.
 
 Request `params` keys:
@@ -154,7 +155,8 @@ Request `params` keys:
   - day (string, conditional) – day focus for daily context
   - season (string, conditional) – season code for seasonal context
   - anomaly (boolean, optional) – anomalies instead of absolute values
-  - region (string, optional) – mutually exclusive with geometry
+  - region (string, optional) – ADM1 region name, mutually exclusive with woreda and geometry
+  - woreda (string, optional) – ADM3 woreda name, mutually exclusive with region and geometry
 
 Success (200 OK):
 ```json
@@ -169,12 +171,13 @@ Returns a single average value across a multi‑year span.
 
 Method: POST
 Path: `/{category}/climatology`
-Spatial Filter: `region` OR `geometry`
+Spatial Filter: `region`, `woreda` OR `geometry`
 
 Request `params` keys:
   - start_year (string, required)
   - end_year (string, required)
-  - region (string, optional, mutually exclusive with geometry)
+  - region (string, optional) – ADM1 region name, mutually exclusive with woreda and geometry
+  - woreda (string, optional) – ADM3 woreda name, mutually exclusive with region and geometry
 
 Success (200 OK):
 ```json
@@ -214,6 +217,21 @@ Content-Type: application/json
     "month": "08",
     "anomaly": true,
     "region": "Afar"
+  }
+}
+```
+
+### Example: Predefined Woreda
+Woreda-level (ADM3) monthly rainfall raster
+```http
+POST /rainfall/monthly/raster-image
+Content-Type: application/json
+
+{
+  "params": {
+    "year": "2023",
+    "month": "06",
+    "woreda": "Nefas Silk"
   }
 }
 ```
@@ -259,6 +277,21 @@ Content-Type: application/json
 }
 ```
 
+### Example: Woreda Temperature Time-Series
+```http
+POST /temperature/monthly/timeseries
+Content-Type: application/json
+
+{
+  "params": {
+    "start_year": "2015",
+    "end_year": "2023",
+    "month": "03",
+    "woreda": "Bole"
+  }
+}
+```
+
 ### Example: Rainfall Climatology (Region)
 ```http
 POST /rainfall/climatology
@@ -269,6 +302,20 @@ Content-Type: application/json
     "start_year": "2000",
     "end_year": "2010",
     "region": "Somali"
+  }
+}
+```
+
+### Example: Rainfall Climatology (Woreda)
+```http
+POST /rainfall/climatology
+Content-Type: application/json
+
+{
+  "params": {
+    "start_year": "2005",
+    "end_year": "2015",
+    "woreda": "Kirkos"
   }
 }
 ```
@@ -319,6 +366,7 @@ Error Response Shape:
 2. `anomaly: true` switches server logic to anomaly retrieval or calculation; omitting it implies absolute values.
 3. Legend values are numeric and may be floats; frontend formats to two decimals.
 4. If a timestep has no value for a time-series position, return `null` at that index (frontend skips plotting gaps).
-5. Never return both `region` and `geometry` echoes in the response—inputs are sufficient for provenance.
+5. Never return both `region`, `woreda`, and `geometry` echoes in the response—inputs are sufficient for provenance.
 6. Future extension fields should be ignored gracefully by the backend to maintain forward compatibility.
+7. Spatial filters are mutually exclusive: use `region` (ADM1) for regional analysis, `woreda` (ADM3) for woreda-level analysis, or `geometry` for custom polygons. Only one may be provided per request.
 
